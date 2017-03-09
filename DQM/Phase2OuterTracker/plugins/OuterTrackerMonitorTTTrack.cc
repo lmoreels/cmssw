@@ -134,7 +134,7 @@ OuterTrackerMonitorTTTrack::beginRun(const edm::Run& run, const edm::EventSetup&
 {
   std::string HistoName;
   
-  dqmStore_->setCurrentFolder(topFolderName_+"/Tracks/");
+  dqmStore_->setCurrentFolder(topFolderName_+"/TTTracks/");
   
   //Nb of tracks
   edm::ParameterSet psTrack_N =  conf_.getParameter<edm::ParameterSet>("TH1_NTracks");
@@ -158,7 +158,7 @@ OuterTrackerMonitorTTTrack::beginRun(const edm::Run& run, const edm::EventSetup&
   
   
   /// Low-quality tracks
-  dqmStore_->setCurrentFolder(topFolderName_+"/Tracks/LQ");
+  dqmStore_->setCurrentFolder(topFolderName_+"/TTTracks/LQ");
   
   // Nb of L1Tracks
   HistoName = "Track_LQ_N";
@@ -255,7 +255,7 @@ OuterTrackerMonitorTTTrack::beginRun(const edm::Run& run, const edm::EventSetup&
   
   
   /// High-quality tracks
-  dqmStore_->setCurrentFolder(topFolderName_+"/Tracks/HQ");
+  dqmStore_->setCurrentFolder(topFolderName_+"/TTTracks/HQ");
   
   // Nb of L1Tracks
   HistoName = "Track_HQ_N";

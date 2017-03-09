@@ -167,7 +167,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
 {
   std::string HistoName;    
 
-  dqmStore_->setCurrentFolder(topFolderName_+"/Stubs/Position");
+  dqmStore_->setCurrentFolder(topFolderName_+"/TTStubs/Position");
   
   
   ////////////////////////////////////////
@@ -263,7 +263,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   Stub_Endcap_Bw_RZ_Zoom->setAxisTitle("L1 Stub Endcap position z [cm]", 1);
   Stub_Endcap_Bw_RZ_Zoom->setAxisTitle("L1 Stub Endcap position #rho [cm]", 2);  
 
-  dqmStore_->setCurrentFolder(topFolderName_+"/Stubs");
+  dqmStore_->setCurrentFolder(topFolderName_+"/TTStubs");
   
   //TTStub eta 
   edm::ParameterSet psTTStub_Eta =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Eta");
@@ -275,7 +275,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   Stub_Eta->setAxisTitle("#eta",1); 
   Stub_Eta->setAxisTitle("# L1 Stubs ",2);
 
-  dqmStore_->setCurrentFolder(topFolderName_+"/Stubs/NStubs");
+  dqmStore_->setCurrentFolder(topFolderName_+"/TTStubs/NStubs");
   
   //TTStub barrel stack
   edm::ParameterSet psTTStub_Barrel =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Layers");
@@ -354,7 +354,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   edm::ParameterSet psTTStub_ECDisc_2D =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_DisOf_Disc");
   edm::ParameterSet psTTStub_ECRing_2D =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_DisOf_Ring");
 
-  dqmStore_->setCurrentFolder(topFolderName_+"/Stubs/Width");
+  dqmStore_->setCurrentFolder(topFolderName_+"/TTStubs/Width");
   
   HistoName = "Stub_Width_Barrel";
   Stub_Barrel_W = dqmStore_->book2D(HistoName, HistoName,
@@ -417,7 +417,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
     Stub_Endcap_Ring_W_Bw[i]->setAxisTitle("Displacement - Offset",2);
   }
 
-  dqmStore_->setCurrentFolder(topFolderName_+"/Stubs/Offset");
+  dqmStore_->setCurrentFolder(topFolderName_+"/TTStubs/Offset");
   
   HistoName = "Stub_Offset_Barrel";
   Stub_Barrel_O = dqmStore_->book2D(HistoName, HistoName,
