@@ -30,8 +30,12 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "Validation/Phase2OuterTracker/interface/OuterTrackerStub.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
-#include "Geometry/Records/interface/StackedTrackerGeometryRecord.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
 #include "TMath.h"
 #include <iostream>
@@ -65,18 +69,6 @@ OuterTrackerStub::~OuterTrackerStub()
 void
 OuterTrackerStub::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  /// Geometry handles etc
-  edm::ESHandle< TrackerGeometry >                GeometryHandle;
-  edm::ESHandle< StackedTrackerGeometry >         StackedGeometryHandle;
-  const StackedTrackerGeometry*                   theStackedGeometry;
-  
-  /// Geometry setup
-  /// Set pointers to Geometry
-  iSetup.get< TrackerDigiGeometryRecord >().get(GeometryHandle);
-  /// Set pointers to Stacked Modules
-  iSetup.get< StackedTrackerGeometryRecord >().get(StackedGeometryHandle);
-  theStackedGeometry = StackedGeometryHandle.product(); /// Note this is different from the "global" geometry
-  
   /// Track Trigger
   edm::Handle< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > > Phase2TrackerDigiTTStubHandle;
   iEvent.getByToken( tagTTStubsToken_, Phase2TrackerDigiTTStubHandle );
@@ -84,75 +76,93 @@ OuterTrackerStub::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   edm::Handle< TTStubAssociationMap< Ref_Phase2TrackerDigi_ > > MCTruthTTStubHandle;
   iEvent.getByToken( tagTTStubMCTruthToken_, MCTruthTTStubHandle );
   
+  /// Geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  const TrackerTopology* tTopo;
+  iSetup.get< TrackerTopologyRcd >().get(tTopoHandle);
+  tTopo = tTopoHandle.product();
+  
+  edm::ESHandle< TrackerGeometry > tGeometryHandle;
+  const TrackerGeometry* theTrackerGeometry;
+  iSetup.get< TrackerDigiGeometryRecord >().get( tGeometryHandle );
+  theTrackerGeometry = tGeometryHandle.product();
+  
+  
   /// Loop over the input Stubs
-  typename edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >::const_iterator otherInputIter;
-  typename edmNew::DetSet< TTStub< Ref_Phase2TrackerDigi_ > >::const_iterator otherContentIter;
-  for ( otherInputIter = Phase2TrackerDigiTTStubHandle->begin();
-       otherInputIter != Phase2TrackerDigiTTStubHandle->end();
-       ++otherInputIter )
+  typename edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >::const_iterator inputIter;
+  typename edmNew::DetSet< TTStub< Ref_Phase2TrackerDigi_ > >::const_iterator contentIter;
+  for ( inputIter = Phase2TrackerDigiTTStubHandle->begin();
+       inputIter != Phase2TrackerDigiTTStubHandle->end();
+       ++inputIter )
   {
-    for ( otherContentIter = otherInputIter->begin();
-         otherContentIter != otherInputIter->end();
-         ++otherContentIter )
+    for ( contentIter = inputIter->begin();
+         contentIter != inputIter->end();
+         ++contentIter )
     {
       /// Make the reference to be put in the map
-      edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > tempStubRef = edmNew::makeRefTo( Phase2TrackerDigiTTStubHandle, otherContentIter );
+      edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > tempStubRef = edmNew::makeRefTo( Phase2TrackerDigiTTStubHandle, contentIter );
       
-      StackedTrackerDetId detIdStub( tempStubRef->getDetId() );
+      /// Get det ID (place of the stub)
+      //  tempStubRef->getDetId() gives the stackDetId, not rawId
+      DetId detIdStub = theTrackerGeometry->idToDet( (tempStubRef->getClusterRef(0))->getDetId() )->geographicalId();
       
+      // CHECK IF THIS STILL WORKS !!
       bool genuineStub    = MCTruthTTStubHandle->isGenuine( tempStubRef );
       bool combinStub     = MCTruthTTStubHandle->isCombinatoric( tempStubRef );
       
-      GlobalPoint posStub = theStackedGeometry->findGlobalPosition( &(*tempStubRef) );
+      /// Define position stub by position inner cluster
+      MeasurementPoint mp = (tempStubRef->getClusterRef(0))->findAverageLocalCoordinates();
+      const GeomDet* theGeomDet = theTrackerGeometry->idToDet(detIdStub);
+      Global3DPoint posStub = theGeomDet->surface().toGlobal( theGeomDet->topology().localPosition(mp) );
       
-      if ( detIdStub.isBarrel() )
+      if ( detIdStub.subdetId() == static_cast<int>(StripSubdetector::TOB) )  // Phase 2 Outer Tracker Barrel
       {
         if ( genuineStub )
         {
-          Stub_Gen_Barrel->Fill( detIdStub.iLayer() );
+          Stub_Gen_Barrel->Fill( tTopo->layer(detIdStub) );
         }
         else if ( combinStub )
         {
-          Stub_Comb_Barrel->Fill( detIdStub.iLayer() );
+          Stub_Comb_Barrel->Fill( tTopo->layer(detIdStub) );
         }
         else
         {
-          Stub_Unkn_Barrel->Fill( detIdStub.iLayer() );
+          Stub_Unkn_Barrel->Fill( tTopo->layer(detIdStub) );
         } 
-      } // end if isBarrel()
-      else if ( detIdStub.isEndcap() )
+      } // end if isBarrel
+      else if ( detIdStub.subdetId() == static_cast<int>(StripSubdetector::TID) )  // Phase 2 Outer Tracker Endcap
       {
         if ( genuineStub )
         {
-          Stub_Gen_Endcap_Disc->Fill( detIdStub.iDisk() );
-          Stub_Gen_Endcap_Ring->Fill( detIdStub.iRing() );
+          Stub_Gen_Endcap_Disc->Fill( tTopo->layer(detIdStub) ); // returns wheel
+          Stub_Gen_Endcap_Ring->Fill( tTopo->tidRing(detIdStub) );
           if ( verbosePlots_ )
           {
-            if ( detIdStub.iSide() == 1) Stub_Gen_Endcap_Ring_Bw[detIdStub.iDisk()-1]->Fill( detIdStub.iRing() );
-            else if ( detIdStub.iSide() == 2) Stub_Gen_Endcap_Ring_Fw[detIdStub.iDisk()-1]->Fill( detIdStub.iRing() );
-          } /// End verbosePlots
+            if ( detIdStub.iSide() == 1) Stub_Gen_Endcap_Ring_Bw[detIdStub.iDisk()-1]->Fill( tTopo->tidRing(detIdStub) );
+            else if ( detIdStub.iSide() == 2) Stub_Gen_Endcap_Ring_Fw[detIdStub.iDisk()-1]->Fill( tTopo->tidRing(detIdStub) );
+          }  /// end verbosePlots
         }
         else if ( combinStub )
         {
-          Stub_Comb_Endcap_Disc->Fill( detIdStub.iDisk() );
-          Stub_Comb_Endcap_Ring->Fill( detIdStub.iRing() );
+          Stub_Comb_Endcap_Disc->Fill( tTopo->layer(detIdStub) ); // returns wheel
+          Stub_Comb_Endcap_Ring->Fill( tTopo->tidRing(detIdStub) );
           if ( verbosePlots_ )
           {
-            if ( detIdStub.iSide() == 1) Stub_Comb_Endcap_Ring_Bw[detIdStub.iDisk()-1]->Fill( detIdStub.iRing() );
-            else if ( detIdStub.iSide() == 2) Stub_Comb_Endcap_Ring_Fw[detIdStub.iDisk()-1]->Fill( detIdStub.iRing() );
-          } /// End verbosePlots
+            if ( detIdStub.iSide() == 1) Stub_Comb_Endcap_Ring_Bw[detIdStub.iDisk()-1]->Fill( tTopo->tidRing(detIdStub) );
+            else if ( detIdStub.iSide() == 2) Stub_Comb_Endcap_Ring_Fw[detIdStub.iDisk()-1]->Fill( tTopo->tidRing(detIdStub) );
+          }  /// end verbosePlots
         }
         else
         {
-          Stub_Unkn_Endcap_Disc->Fill( detIdStub.iDisk() );
-          Stub_Unkn_Endcap_Ring->Fill( detIdStub.iRing() );
+          Stub_Unkn_Endcap_Disc->Fill( tTopo->layer(detIdStub) ); // returns wheel
+          Stub_Unkn_Endcap_Ring->Fill( tTopo->tidRing(detIdStub) );
           if ( verbosePlots_ )
           {
-            if ( detIdStub.iSide() == 1) Stub_Unkn_Endcap_Ring_Bw[detIdStub.iDisk()-1]->Fill( detIdStub.iRing() );
-            else if ( detIdStub.iSide() == 2) Stub_Unkn_Endcap_Ring_Fw[detIdStub.iDisk()-1]->Fill( detIdStub.iRing() );
-          } /// End verbosePlots
+            if ( detIdStub.iSide() == 1) Stub_Unkn_Endcap_Ring_Bw[detIdStub.iDisk()-1]->Fill( tTopo->tidRing(detIdStub) );
+            else if ( detIdStub.iSide() == 2) Stub_Unkn_Endcap_Ring_Fw[detIdStub.iDisk()-1]->Fill( tTopo->tidRing(detIdStub) );
+          }  /// end verbosePlots
         }
-      }	// end if isEndcap()
+      }	// end if isEndcap
       
       /// Eta distribution in function of genuine/combinatorial/unknown stub
       if ( genuineStub ) Stub_Gen_Eta->Fill( posStub.eta() );
