@@ -43,6 +43,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 
 
 #include "TMath.h"
@@ -106,22 +107,22 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   //iEvent.getByToken( tagTTTrackMCTruthToken_, MCTruthTTTrackHandle );
   
   /// Geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  const TrackerTopology* tTopo;
-  iSetup.get< TrackerTopologyRcd >().get(tTopoHandle);
-  tTopo = tTopoHandle.product();
-  
-  edm::ESHandle< TrackerGeometry > tGeometryHandle;
-  const TrackerGeometry* theTrackerGeometry;
-  iSetup.get< TrackerDigiGeometryRecord >().get( tGeometryHandle );
-  theTrackerGeometry = tGeometryHandle.product();
+//   edm::ESHandle<TrackerTopology> tTopoHandle;
+//   const TrackerTopology* tTopo;
+//   iSetup.get< TrackerTopologyRcd >().get(tTopoHandle);
+//   tTopo = tTopoHandle.product();
+//   
+//   edm::ESHandle< TrackerGeometry > tGeometryHandle;
+//   const TrackerGeometry* theTrackerGeometry;
+//   iSetup.get< TrackerDigiGeometryRecord >().get( tGeometryHandle );
+//   theTrackerGeometry = tGeometryHandle.product();
   
   // CHECK IF THIS STILL WORKS !!
   /// Magnetic Field
-  edm::ESHandle< MagneticField > magneticFieldHandle;
-  iSetup.get< IdealMagneticFieldRecord >().get(magneticFieldHandle);
-  const MagneticField* theMagneticField = magneticFieldHandle.product();
-  double mMagneticFieldStrength = theMagneticField->inTesla(GlobalPoint(0,0,0)).z();
+//   edm::ESHandle< MagneticField > magneticFieldHandle;
+//   iSetup.get< IdealMagneticFieldRecord >().get(magneticFieldHandle);
+//   const MagneticField* theMagneticField = magneticFieldHandle.product();
+//   double mMagneticFieldStrength = theMagneticField->inTesla(GlobalPoint(0,0,0)).z();
   
   
   /// Go on only if there are TrackingParticles
@@ -396,7 +397,7 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       
       /// Get det ID (place of the stub)
       //  tempStubRef->getDetId() gives the stackDetId, not rawId
-      DetId detIdStub = theTrackerGeometry->idToDet( (tempStubRef->getClusterRef(0))->getDetId() )->geographicalId();
+//      DetId detIdStub = theTrackerGeometry->idToDet( (tempStubRef->getClusterRef(0))->getDetId() )->geographicalId();
       
       bool genuineStub    = MCTruthTTStubHandle->isGenuine( tempStubRef );
       int partStub        = 999999999;
@@ -422,24 +423,24 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         TrackingParticle thisTP = *tpPtr;
         
         /// REMOVE STACKEDTRACKERGEOMETRY DEPENDENCE
-        double simPt  = thisTP.p4().pt();
-        double simEta = thisTP.momentum().eta();
-        double simPhi = thisTP.momentum().phi();
+//         double simPt  = thisTP.p4().pt();
+//         double simEta = thisTP.momentum().eta();
+//         double simPhi = thisTP.momentum().phi();
 //        double recPt  = theStackedGeometry->findRoughPt( mMagneticFieldStrength, &(*tempStubRef) );
 //        double recEta = theStackedGeometry->findGlobalDirection( &(*tempStubRef) ).eta();
 //        double recPhi = theStackedGeometry->findGlobalDirection( &(*tempStubRef) ).phi();
-
-        if ( simPhi > M_PI )
-        {
-          simPhi -= 2*M_PI;
-        }
-        if ( recPhi > M_PI )
-        {
-          recPhi -= 2*M_PI;
-        }
-
-        double displStub    = tempStubRef->getTriggerDisplacement();
-        double offsetStub   = tempStubRef->getTriggerOffset();
+// 
+//         if ( simPhi > M_PI )
+//         {
+//           simPhi -= 2*M_PI;
+//         }
+//         if ( recPhi > M_PI )
+//         {
+//           recPhi -= 2*M_PI;
+//         }
+// 
+//         double displStub    = tempStubRef->getTriggerDisplacement();
+//         double offsetStub   = tempStubRef->getTriggerOffset();
 
 //         if ( detIdStub.subdetId() == static_cast<int>(StripSubdetector::TOB) )  // Phase 2 Outer Tracker Barrel
 //         {

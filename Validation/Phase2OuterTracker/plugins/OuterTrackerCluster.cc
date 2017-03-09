@@ -69,10 +69,10 @@ void
 OuterTrackerCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {  
   /// Track Trigger
-  edm::Handle< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi > > > Phase2TrackerDigiTTClusterHandle;
+  edm::Handle< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > > Phase2TrackerDigiTTClusterHandle;
   iEvent.getByToken( tagTTClustersToken_, Phase2TrackerDigiTTClusterHandle );
   /// Track Trigger MC Truth
-  edm::Handle< TTClusterAssociationMap< Ref_Phase2TrackerDigi > > MCTruthTTClusterHandle;
+  edm::Handle< TTClusterAssociationMap< Ref_Phase2TrackerDigi_ > > MCTruthTTClusterHandle;
   iEvent.getByToken( tagTTClusterMCTruthToken_, MCTruthTTClusterHandle );
   
   /// Geometry
@@ -88,8 +88,8 @@ OuterTrackerCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   
   	
   /// Loop over the input Clusters
-  typename edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi > >::const_iterator inputIter;
-  typename edmNew::DetSet< TTCluster< Ref_Phase2TrackerDigi > >::const_iterator contentIter;
+  typename edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >::const_iterator inputIter;
+  typename edmNew::DetSet< TTCluster< Ref_Phase2TrackerDigi_ > >::const_iterator contentIter;
   for ( inputIter = Phase2TrackerDigiTTClusterHandle->begin();
        inputIter != Phase2TrackerDigiTTClusterHandle->end();
        ++inputIter )
@@ -99,7 +99,7 @@ OuterTrackerCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
          ++contentIter )
     {
       /// Make the reference to be put in the map
-      edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi > >, TTCluster< Ref_Phase2TrackerDigi > > tempCluRef = edmNew::makeRefTo( Phase2TrackerDigiTTClusterHandle, contentIter );
+      edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >, TTCluster< Ref_Phase2TrackerDigi_ > > tempCluRef = edmNew::makeRefTo( Phase2TrackerDigiTTClusterHandle, contentIter );
       
       DetId detIdClu = theTrackerGeometry->idToDet( tempCluRef->getDetId() )->geographicalId();
       
@@ -131,34 +131,37 @@ OuterTrackerCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       }	// end if isBarrel
       else if ( detIdClu.subdetId() == static_cast<int>(StripSubdetector::TID) )  // Phase 2 Outer Tracker Endcap
       {
+        int side = tTopo->side(detIdClu);
+        int disc = tTopo->layer(detIdClu);  // returns wheel
+        int ring = tTopo->tidRing(detIdClu);
         if ( genuineClu )
         {
-          Cluster_Gen_Endcap_Disc->Fill( tTopo->layer(detIdClu) ); // returns wheel
-          Cluster_Gen_Endcap_Ring->Fill( tTopo->tidRing(detIdClu) );
+          Cluster_Gen_Endcap_Disc->Fill( disc );
+          Cluster_Gen_Endcap_Ring->Fill( ring );
           if ( verbosePlots_ )
           {
-            if ( detIdClu.iSide() == 1) Cluster_Gen_Endcap_Ring_Bw[detIdClu.iDisk()-1]->Fill( tTopo->tidRing(detIdClu) );
-            else if ( detIdClu.iSide() == 2) Cluster_Gen_Endcap_Ring_Fw[detIdClu.iDisk()-1]->Fill( tTopo->tidRing(detIdClu) );
+            if ( side == 1 ) Cluster_Gen_Endcap_Ring_Bw[disc-1]->Fill( ring );
+            else if ( side == 2 ) Cluster_Gen_Endcap_Ring_Fw[disc-1]->Fill( ring );
           }  /// end verbosePlots
         }
         else if ( combinClu )
         {
-          Cluster_Comb_Endcap_Disc->Fill( tTopo->layer(detIdClu) ); // returns wheel
-          Cluster_Comb_Endcap_Ring->Fill( tTopo->tidRing(detIdClu) );
+          Cluster_Comb_Endcap_Disc->Fill( disc );
+          Cluster_Comb_Endcap_Ring->Fill( ring );
           if ( verbosePlots_ )
           {
-            if ( detIdClu.iSide() == 1) Cluster_Comb_Endcap_Ring_Bw[detIdClu.iDisk()-1]->Fill( tTopo->tidRing(detIdClu) );
-            else if ( detIdClu.iSide() == 2) Cluster_Comb_Endcap_Ring_Fw[detIdClu.iDisk()-1]->Fill( tTopo->tidRing(detIdClu) );
+            if ( side == 1 ) Cluster_Comb_Endcap_Ring_Bw[disc-1]->Fill( ring );
+            else if ( side == 2 ) Cluster_Comb_Endcap_Ring_Fw[disc-1]->Fill( ring );
           }  /// end verbosePlots
         }
         else
         {
-          Cluster_Unkn_Endcap_Disc->Fill( tTopo->layer(detIdClu) ); // returns wheel
+          Cluster_Unkn_Endcap_Disc->Fill( disc );
           Cluster_Unkn_Endcap_Ring->Fill( tTopo->tidRing(detIdClu) );
           if ( verbosePlots_ )
           {
-            if ( detIdClu.iSide() == 1) Cluster_Unkn_Endcap_Ring_Bw[detIdClu.iDisk()-1]->Fill( tTopo->tidRing(detIdClu) );
-            else if ( detIdClu.iSide() == 2) Cluster_Unkn_Endcap_Ring_Fw[detIdClu.iDisk()-1]->Fill( tTopo->tidRing(detIdClu) );
+            if ( side == 1 ) Cluster_Unkn_Endcap_Ring_Bw[disc-1]->Fill( ring );
+            else if ( side == 2 ) Cluster_Unkn_Endcap_Ring_Fw[disc-1]->Fill( ring );
           }  /// end verbosePlots
         }
       }	// end if isEndcap
