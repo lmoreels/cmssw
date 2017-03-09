@@ -26,11 +26,14 @@
 #include "TNamed.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "Validation/Phase2OuterTracker/interface/OuterTrackerCluster.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
-#include "Geometry/Records/interface/StackedTrackerGeometryRecord.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
 #include "TMath.h"
 #include <iostream>
@@ -65,24 +68,24 @@ OuterTrackerCluster::~OuterTrackerCluster()
 void
 OuterTrackerCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {  
-  /// Geometry handles etc
-  edm::ESHandle< TrackerGeometry >                GeometryHandle;
-  edm::ESHandle< StackedTrackerGeometry >         StackedGeometryHandle;
-  const StackedTrackerGeometry*                   theStackedGeometry;
-  
-  /// Geometry setup
-  /// Set pointers to Geometry
-  iSetup.get< TrackerDigiGeometryRecord >().get(GeometryHandle);
-  /// Set pointers to Stacked Modules
-  iSetup.get< StackedTrackerGeometryRecord >().get(StackedGeometryHandle);
-  theStackedGeometry = StackedGeometryHandle.product(); /// Note this is different from the "global" geometry
-  
   /// Track Trigger
   edm::Handle< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi > > > Phase2TrackerDigiTTClusterHandle;
   iEvent.getByToken( tagTTClustersToken_, Phase2TrackerDigiTTClusterHandle );
   /// Track Trigger MC Truth
   edm::Handle< TTClusterAssociationMap< Ref_Phase2TrackerDigi > > MCTruthTTClusterHandle;
   iEvent.getByToken( tagTTClusterMCTruthToken_, MCTruthTTClusterHandle );
+  
+  /// Geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  const TrackerTopology* tTopo;
+  iSetup.get< TrackerTopologyRcd >().get(tTopoHandle);
+  tTopo = tTopoHandle.product();
+  
+  edm::ESHandle< TrackerGeometry > tGeometryHandle;
+  const TrackerGeometry* theTrackerGeometry;
+  iSetup.get< TrackerDigiGeometryRecord >().get( tGeometryHandle );
+  theTrackerGeometry = tGeometryHandle.product();
+  
   	
   /// Loop over the input Clusters
   typename edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi > >::const_iterator inputIter;
@@ -98,62 +101,67 @@ OuterTrackerCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       /// Make the reference to be put in the map
       edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi > >, TTCluster< Ref_Phase2TrackerDigi > > tempCluRef = edmNew::makeRefTo( Phase2TrackerDigiTTClusterHandle, contentIter );
       
-      StackedTrackerDetId detIdClu( tempCluRef->getDetId() );
+      DetId detIdClu = theTrackerGeometry->idToDet( tempCluRef->getDetId() )->geographicalId();
+      
+      // CHECK IF THIS STILL WORKS !!
       bool genuineClu     = MCTruthTTClusterHandle->isGenuine( tempCluRef );
       bool combinClu      = MCTruthTTClusterHandle->isCombinatoric( tempCluRef );
       
+      // necessary??
       if ( genuineClu ) edm::Ptr< TrackingParticle > thisTP = MCTruthTTClusterHandle->findTrackingParticlePtr(tempCluRef);
       
-      GlobalPoint posClu  = theStackedGeometry->findAverageGlobalPosition( &(*tempCluRef) );
+      MeasurementPoint mp = tempCluRef->findAverageLocalCoordinates();
+      const GeomDet* theGeomDet = theTrackerGeometry->idToDet(detIdClu);
+      Global3DPoint posClu = theGeomDet->surface().toGlobal( theGeomDet->topology().localPosition(mp) );
       
-      if ( detIdClu.isBarrel() )
+      if ( detIdClu.subdetId() == static_cast<int>(StripSubdetector::TOB) )  // Phase 2 Outer Tracker Barrel
       {
         if ( genuineClu )
         {
-          Cluster_Gen_Barrel->Fill( detIdClu.iLayer() );
+          Cluster_Gen_Barrel->Fill( tTopo->layer(detIdClu) );
         }
         else if ( combinClu )
         {
-          Cluster_Comb_Barrel->Fill( detIdClu.iLayer() );
+          Cluster_Comb_Barrel->Fill( tTopo->layer(detIdClu) );
         }
         else
         {
-          Cluster_Unkn_Barrel->Fill( detIdClu.iLayer() );
+          Cluster_Unkn_Barrel->Fill( tTopo->layer(detIdClu) );
         }
-      }	// end if isBarrel()
-      else if ( detIdClu.isEndcap() )
+      }	// end if isBarrel
+      else if ( detIdClu.subdetId() == static_cast<int>(StripSubdetector::TID) )  // Phase 2 Outer Tracker Endcap
       {
         if ( genuineClu )
         {
-          Cluster_Gen_Endcap_Disc->Fill( detIdClu.iDisk() );
-          Cluster_Gen_Endcap_Ring->Fill( detIdClu.iRing() );
+          Cluster_Gen_Endcap_Disc->Fill( tTopo->layer(detIdClu) ); // returns wheel
+          Cluster_Gen_Endcap_Ring->Fill( tTopo->tidRing(detIdClu) );
           if ( verbosePlots_ )
           {
-            if ( detIdClu.iSide() == 1) Cluster_Gen_Endcap_Ring_Bw[detIdClu.iDisk()-1]->Fill( detIdClu.iRing() );
-            else if ( detIdClu.iSide() == 2) Cluster_Gen_Endcap_Ring_Fw[detIdClu.iDisk()-1]->Fill( detIdClu.iRing() );
-          } /// End verbosePlots
+            if ( detIdClu.iSide() == 1) Cluster_Gen_Endcap_Ring_Bw[detIdClu.iDisk()-1]->Fill( tTopo->tidRing(detIdClu) );
+            else if ( detIdClu.iSide() == 2) Cluster_Gen_Endcap_Ring_Fw[detIdClu.iDisk()-1]->Fill( tTopo->tidRing(detIdClu) );
+          }  /// end verbosePlots
         }
         else if ( combinClu )
         {
-          Cluster_Comb_Endcap_Disc->Fill( detIdClu.iDisk() );
-          Cluster_Comb_Endcap_Ring->Fill( detIdClu.iRing() );
+          Cluster_Comb_Endcap_Disc->Fill( tTopo->layer(detIdClu) ); // returns wheel
+          Cluster_Comb_Endcap_Ring->Fill( tTopo->tidRing(detIdClu) );
           if ( verbosePlots_ )
           {
-            if ( detIdClu.iSide() == 1) Cluster_Comb_Endcap_Ring_Bw[detIdClu.iDisk()-1]->Fill( detIdClu.iRing() );
-            else if ( detIdClu.iSide() == 2) Cluster_Comb_Endcap_Ring_Fw[detIdClu.iDisk()-1]->Fill( detIdClu.iRing() );
-          } /// End verbosePlots
+            if ( detIdClu.iSide() == 1) Cluster_Comb_Endcap_Ring_Bw[detIdClu.iDisk()-1]->Fill( tTopo->tidRing(detIdClu) );
+            else if ( detIdClu.iSide() == 2) Cluster_Comb_Endcap_Ring_Fw[detIdClu.iDisk()-1]->Fill( tTopo->tidRing(detIdClu) );
+          }  /// end verbosePlots
         }
         else
         {
-          Cluster_Unkn_Endcap_Disc->Fill( detIdClu.iDisk() );
-          Cluster_Unkn_Endcap_Ring->Fill( detIdClu.iRing() );
+          Cluster_Unkn_Endcap_Disc->Fill( tTopo->layer(detIdClu) ); // returns wheel
+          Cluster_Unkn_Endcap_Ring->Fill( tTopo->tidRing(detIdClu) );
           if ( verbosePlots_ )
           {
-            if ( detIdClu.iSide() == 1) Cluster_Unkn_Endcap_Ring_Bw[detIdClu.iDisk()-1]->Fill( detIdClu.iRing() );
-            else if ( detIdClu.iSide() == 2) Cluster_Unkn_Endcap_Ring_Fw[detIdClu.iDisk()-1]->Fill( detIdClu.iRing() );
-          } /// End verbosePlots
+            if ( detIdClu.iSide() == 1) Cluster_Unkn_Endcap_Ring_Bw[detIdClu.iDisk()-1]->Fill( tTopo->tidRing(detIdClu) );
+            else if ( detIdClu.iSide() == 2) Cluster_Unkn_Endcap_Ring_Fw[detIdClu.iDisk()-1]->Fill( tTopo->tidRing(detIdClu) );
+          }  /// end verbosePlots
         }
-      }	// end if isEndcap()
+      }	// end if isEndcap
       
       /// Eta distribution in function of genuine/combinatorial/unknown cluster
       if ( genuineClu ) Cluster_Gen_Eta->Fill( posClu.eta() );
