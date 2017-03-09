@@ -132,34 +132,37 @@ OuterTrackerStub::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       } // end if isBarrel
       else if ( detIdStub.subdetId() == static_cast<int>(StripSubdetector::TID) )  // Phase 2 Outer Tracker Endcap
       {
+        int side = tTopo->side(detIdStub);
+        int disc = tTopo->layer(detIdStub);  // returns wheel
+        int ring = tTopo->tidRing(detIdStub);
         if ( genuineStub )
         {
-          Stub_Gen_Endcap_Disc->Fill( tTopo->layer(detIdStub) ); // returns wheel
-          Stub_Gen_Endcap_Ring->Fill( tTopo->tidRing(detIdStub) );
+          Stub_Gen_Endcap_Disc->Fill( disc );
+          Stub_Gen_Endcap_Ring->Fill( ring );
           if ( verbosePlots_ )
           {
-            if ( detIdStub.iSide() == 1) Stub_Gen_Endcap_Ring_Bw[detIdStub.iDisk()-1]->Fill( tTopo->tidRing(detIdStub) );
-            else if ( detIdStub.iSide() == 2) Stub_Gen_Endcap_Ring_Fw[detIdStub.iDisk()-1]->Fill( tTopo->tidRing(detIdStub) );
+            if ( side == 1 ) Stub_Gen_Endcap_Ring_Bw[disc-1]->Fill( ring );
+            else if ( side == 2 ) Stub_Gen_Endcap_Ring_Fw[disc-1]->Fill( ring );
           }  /// end verbosePlots
         }
         else if ( combinStub )
         {
-          Stub_Comb_Endcap_Disc->Fill( tTopo->layer(detIdStub) ); // returns wheel
-          Stub_Comb_Endcap_Ring->Fill( tTopo->tidRing(detIdStub) );
+          Stub_Comb_Endcap_Disc->Fill( disc );
+          Stub_Comb_Endcap_Ring->Fill( ring );
           if ( verbosePlots_ )
           {
-            if ( detIdStub.iSide() == 1) Stub_Comb_Endcap_Ring_Bw[detIdStub.iDisk()-1]->Fill( tTopo->tidRing(detIdStub) );
-            else if ( detIdStub.iSide() == 2) Stub_Comb_Endcap_Ring_Fw[detIdStub.iDisk()-1]->Fill( tTopo->tidRing(detIdStub) );
+            if ( side == 1 ) Stub_Comb_Endcap_Ring_Bw[disc-1]->Fill( ring );
+            else if ( side == 2 ) Stub_Comb_Endcap_Ring_Fw[disc-1]->Fill( ring );
           }  /// end verbosePlots
         }
         else
         {
-          Stub_Unkn_Endcap_Disc->Fill( tTopo->layer(detIdStub) ); // returns wheel
-          Stub_Unkn_Endcap_Ring->Fill( tTopo->tidRing(detIdStub) );
+          Stub_Unkn_Endcap_Disc->Fill( disc );
+          Stub_Unkn_Endcap_Ring->Fill( ring );
           if ( verbosePlots_ )
           {
-            if ( detIdStub.iSide() == 1) Stub_Unkn_Endcap_Ring_Bw[detIdStub.iDisk()-1]->Fill( tTopo->tidRing(detIdStub) );
-            else if ( detIdStub.iSide() == 2) Stub_Unkn_Endcap_Ring_Fw[detIdStub.iDisk()-1]->Fill( tTopo->tidRing(detIdStub) );
+            if ( side == 1 ) Stub_Unkn_Endcap_Ring_Bw[disc-1]->Fill( ring );
+            else if ( side == 2 ) Stub_Unkn_Endcap_Ring_Fw[disc-1]->Fill( ring );
           }  /// end verbosePlots
         }
       }	// end if isEndcap
