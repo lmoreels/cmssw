@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -13,6 +14,10 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+#include "DataFormats/L1TrackTrigger/interface/TTCluster.h"
+#include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
 
 class DQMStore;
 
@@ -50,8 +55,8 @@ public:
  private:
   DQMStore* dqmStore_;
   edm::ParameterSet conf_;
-  edm::InputTag tagTTClusters_;
-  edm::InputTag tagTTClusterMCTruth_;
+  edm::EDGetTokenT<edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > >  tagTTClustersToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector< TTClusterAssociationMap< Ref_Phase2TrackerDigi_ > > >  tagTTClusterMCTruthToken_;
 
   std::string topFolderName_;
   bool verbosePlots_;

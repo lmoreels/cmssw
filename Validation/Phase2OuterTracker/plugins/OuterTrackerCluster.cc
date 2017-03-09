@@ -26,20 +26,9 @@
 #include "TNamed.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "Validation/Phase2OuterTracker/interface/OuterTrackerCluster.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-
-// For TrackingParticles
-#include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
-#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
-#include "DataFormats/L1TrackTrigger/interface/TTCluster.h"
-
 #include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
 #include "Geometry/Records/interface/StackedTrackerGeometryRecord.h"
 
@@ -53,8 +42,8 @@ OuterTrackerCluster::OuterTrackerCluster(const edm::ParameterSet& iConfig)
 : dqmStore_(edm::Service<DQMStore>().operator->()), conf_(iConfig)
 {
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
-  tagTTClusters_ = conf_.getParameter< edm::InputTag >("TTClusters");
-  tagTTClusterMCTruth_ = conf_.getParameter< edm::InputTag >("TTClusterMCTruth");
+  tagTTClustersToken_ = consumes<edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > > (conf_.getParameter<edm::InputTag>("TTClusters") );
+  tagTTClusterMCTruthToken_ = consumes<edmNew::DetSetVector< TTClusterAssociationMap< Ref_Phase2TrackerDigi_ > > > (conf_.getParameter<edm::InputTag>("TTClusterMCTruth") );
   verbosePlots_ = conf_.getUntrackedParameter<bool>("verbosePlots",false);
 }
 
@@ -89,17 +78,17 @@ OuterTrackerCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   theStackedGeometry = StackedGeometryHandle.product(); /// Note this is different from the "global" geometry
   
   /// Track Trigger
-  edm::Handle< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > > > PixelDigiTTClusterHandle;
-  iEvent.getByLabel( tagTTClusters_, PixelDigiTTClusterHandle );
+  edm::Handle< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi > > > Phase2TrackerDigiTTClusterHandle;
+  iEvent.getByToken( tagTTClustersToken_, Phase2TrackerDigiTTClusterHandle );
   /// Track Trigger MC Truth
-  edm::Handle< TTClusterAssociationMap< Ref_PixelDigi_ > > MCTruthTTClusterHandle;
-  iEvent.getByLabel( tagTTClusterMCTruth_, MCTruthTTClusterHandle );
+  edm::Handle< TTClusterAssociationMap< Ref_Phase2TrackerDigi > > MCTruthTTClusterHandle;
+  iEvent.getByToken( tagTTClusterMCTruthToken_, MCTruthTTClusterHandle );
   	
   /// Loop over the input Clusters
-  typename edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >::const_iterator inputIter;
-  typename edmNew::DetSet< TTCluster< Ref_PixelDigi_ > >::const_iterator contentIter;
-  for ( inputIter = PixelDigiTTClusterHandle->begin();
-       inputIter != PixelDigiTTClusterHandle->end();
+  typename edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi > >::const_iterator inputIter;
+  typename edmNew::DetSet< TTCluster< Ref_Phase2TrackerDigi > >::const_iterator contentIter;
+  for ( inputIter = Phase2TrackerDigiTTClusterHandle->begin();
+       inputIter != Phase2TrackerDigiTTClusterHandle->end();
        ++inputIter )
   {
     for ( contentIter = inputIter->begin();
@@ -107,7 +96,7 @@ OuterTrackerCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
          ++contentIter )
     {
       /// Make the reference to be put in the map
-      edm::Ref< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >, TTCluster< Ref_PixelDigi_ > > tempCluRef = edmNew::makeRefTo( PixelDigiTTClusterHandle, contentIter );
+      edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi > >, TTCluster< Ref_Phase2TrackerDigi > > tempCluRef = edmNew::makeRefTo( Phase2TrackerDigiTTClusterHandle, contentIter );
       
       StackedTrackerDetId detIdClu( tempCluRef->getDetId() );
       bool genuineClu     = MCTruthTTClusterHandle->isGenuine( tempCluRef );

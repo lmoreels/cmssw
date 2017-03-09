@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>
+//#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -13,6 +14,12 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+//#include "DataFormats/L1TrackTrigger/interface/TTTrack.h"  // does not exist yet in 90X
+#include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
+#include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
+//#include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"  // does not exist yet in 90X
 
 class DQMStore;
 
@@ -53,8 +60,9 @@ public:
  private:
   DQMStore* dqmStore_;
   edm::ParameterSet conf_;
-  edm::InputTag tagTTTracks_;
-  edm::InputTag tagTTTrackMCTruth_;
+  //edm::EDGetTokenT<edmNew::DetSetVector< TTTrack< Ref_Phase2TrackerDigi_ > > >  tagTTTracksToken_;
+  //Check if TTTrackAssociationMap is correct format
+  //edm::EDGetTokenT<edmNew::DetSetVector< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > > >  tagTTTrackMCTruthToken_;
 
   std::string topFolderName_;
   unsigned int HQDelim_;
