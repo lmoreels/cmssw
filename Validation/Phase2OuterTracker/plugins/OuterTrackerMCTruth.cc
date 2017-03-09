@@ -62,12 +62,12 @@ OuterTrackerMCTruth::OuterTrackerMCTruth(const edm::ParameterSet& iConfig)
 
 {
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
-  tagTTClusters_ = conf_.getParameter< edm::InputTag >("TTClusters");
-  tagTTClusterMCTruth_ = conf_.getParameter< edm::InputTag >("TTClusterMCTruth");
-  tagTTStubs_ = conf_.getParameter< edm::InputTag >("TTStubs");
-  tagTTStubMCTruth_ = conf_.getParameter< edm::InputTag >("TTStubMCTruth");
-  tagTTTracks_ = conf_.getParameter< edm::InputTag >("TTTracks");
-  tagTTTrackMCTruth_ = conf_.getParameter< edm::InputTag >("TTTrackMCTruth");
+  tagTTClustersToken_ = consumes<edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > > (conf_.getParameter<edm::InputTag>("TTClusters") );
+  tagTTClusterMCTruthToken_ = consumes<edmNew::DetSetVector< TTClusterAssociationMap< Ref_Phase2TrackerDigi_ > > > (conf_.getParameter<edm::InputTag>("TTClusterMCTruth") );
+  tagTTStubsToken_ = consumes<edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > > (conf_.getParameter<edm::InputTag>("TTStubs") );
+  tagTTStubMCTruthToken_ = consumes<edmNew::DetSetVector< TTStubAssociationMap< Ref_Phase2TrackerDigi_ > > > (conf_.getParameter<edm::InputTag>("TTStubMCTruth") );
+  //tagTTTracksToken_ = consumes<edmNew::DetSetVector< TTTrack< Ref_Phase2TrackerDigi_ > > > (conf_.getParameter<edm::InputTag>("TTTracks") );
+  //tagTTTrackMCTruthToken_ = consumes<edmNew::DetSetVector< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > > > (conf_.getParameter<edm::InputTag>("TTTrackMCTruth") );
   HQDelim_ = conf_.getParameter<int>("HQDelim");
   useTracking_ = conf_.getUntrackedParameter<bool>("useTracking",true);
   verbosePlots_ = conf_.getUntrackedParameter<bool>("verbosePlots",false);
@@ -91,27 +91,7 @@ OuterTrackerMCTruth::~OuterTrackerMCTruth()
 void
 OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  
-  /// Geometry handles etc
-  edm::ESHandle< TrackerGeometry >                GeometryHandle;
-  edm::ESHandle< StackedTrackerGeometry >         StackedGeometryHandle;
-  const StackedTrackerGeometry*                   theStackedGeometry;
-  StackedTrackerGeometry::StackContainerIterator  StackedTrackerIterator;
-	
-  /// Geometry setup
-  /// Set pointers to Geometry
-  iSetup.get< TrackerDigiGeometryRecord >().get(GeometryHandle);
-  /// Set pointers to Stacked Modules
-  iSetup.get< StackedTrackerGeometryRecord >().get(StackedGeometryHandle);
-  theStackedGeometry = StackedGeometryHandle.product(); /// Note this is different from the "global" geometry
-  
-  /// Magnetic Field
-  edm::ESHandle< MagneticField > magneticFieldHandle;
-  iSetup.get< IdealMagneticFieldRecord >().get(magneticFieldHandle);
-  const MagneticField* theMagneticField = magneticFieldHandle.product();
-  double mMagneticFieldStrength = theMagneticField->inTesla(GlobalPoint(0,0,0)).z();
-  
-  
+  // CHECK HOW TO DO THIS !!
   /// TrackingParticles
   edm::Handle< std::vector< TrackingParticle > > TrackingParticleHandle;
   iEvent.getByLabel( "mix", "MergedTrackTruth", TrackingParticleHandle );
@@ -119,18 +99,36 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   /// Track Trigger
   edm::Handle< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > > Phase2TrackerDigiTTClusterHandle;
   edm::Handle< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > >    Phase2TrackerDigiTTStubHandle;
-  edm::Handle< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > >            Phase2TrackerDigiTTTrackHandle;
-  iEvent.getByLabel( tagTTClusters_, Phase2TrackerDigiTTClusterHandle );
-  iEvent.getByLabel( tagTTStubs_, Phase2TrackerDigiTTStubHandle );
-  if (useTracking_) iEvent.getByLabel( tagTTTracks_, Phase2TrackerDigiTTTrackHandle );
+  //edm::Handle< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > >            Phase2TrackerDigiTTTrackHandle;
+  iEvent.getByToken( tagTTClustersToken_, Phase2TrackerDigiTTClusterHandle );
+  iEvent.getByToken( tagTTStubsToken_, Phase2TrackerDigiTTStubHandle );
+  //iEvent.getByToken( tagTTTracksToken_, Phase2TrackerDigiTTTrackHandle );
   
   /// Track Trigger MC Truth
   edm::Handle< TTClusterAssociationMap< Ref_Phase2TrackerDigi_ > > MCTruthTTClusterHandle;
   edm::Handle< TTStubAssociationMap< Ref_Phase2TrackerDigi_ > >    MCTruthTTStubHandle;
-  edm::Handle< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > >   MCTruthTTTrackHandle;
-  iEvent.getByLabel( tagTTClusterMCTruth_, MCTruthTTClusterHandle );
-  iEvent.getByLabel( tagTTStubMCTruth_, MCTruthTTStubHandle );
-  if (useTracking_) iEvent.getByLabel( tagTTTrackMCTruth_, MCTruthTTTrackHandle );
+  //edm::Handle< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > >   MCTruthTTTrackHandle;
+  iEvent.getByToken( tagTTClusterMCTruthToken_, MCTruthTTClusterHandle );
+  iEvent.getByToken( tagTTStubMCTruthToken_, MCTruthTTStubHandle );
+  //iEvent.getByToken( tagTTTrackMCTruthToken_, MCTruthTTTrackHandle );
+  
+  /// Geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  const TrackerTopology* tTopo;
+  iSetup.get< TrackerTopologyRcd >().get(tTopoHandle);
+  tTopo = tTopoHandle.product();
+  
+  edm::ESHandle< TrackerGeometry > tGeometryHandle;
+  const TrackerGeometry* theTrackerGeometry;
+  iSetup.get< TrackerDigiGeometryRecord >().get( tGeometryHandle );
+  theTrackerGeometry = tGeometryHandle.product();
+  
+  // CHECK IF THIS STILL WORKS !!
+  /// Magnetic Field
+  edm::ESHandle< MagneticField > magneticFieldHandle;
+  iSetup.get< IdealMagneticFieldRecord >().get(magneticFieldHandle);
+  const MagneticField* theMagneticField = magneticFieldHandle.product();
+  double mMagneticFieldStrength = theMagneticField->inTesla(GlobalPoint(0,0,0)).z();
   
   
   /// Go on only if there are TrackingParticles

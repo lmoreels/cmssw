@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>
+//#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -12,6 +13,14 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+#include "DataFormats/L1TrackTrigger/interface/TTCluster.h"
+#include "DataFormats/L1TrackTrigger/interface/TTStub.h"
+//#include "DataFormats/L1TrackTrigger/interface/TTTrack.h"  // does not exist yet in 90X
+#include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
+#include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
+//#include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"  // does not exist yet in 90X
 
 class DQMStore;
 
@@ -129,12 +138,12 @@ public:
  private:
   DQMStore* dqmStore_;
   edm::ParameterSet conf_;
-  edm::InputTag tagTTClusters_;
-  edm::InputTag tagTTClusterMCTruth_;
-  edm::InputTag tagTTStubs_;
-  edm::InputTag tagTTStubMCTruth_;
-  edm::InputTag tagTTTracks_;
-  edm::InputTag tagTTTrackMCTruth_;
+  edm::EDGetTokenT<edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > >  tagTTClustersToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector< TTClusterAssociationMap< Ref_Phase2TrackerDigi_ > > >  tagTTClusterMCTruthToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > >  tagTTStubsToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector< TTStubAssociationMap< Ref_Phase2TrackerDigi_ > > >  tagTTStubMCTruthToken_;
+  //edm::EDGetTokenT<edmNew::DetSetVector< TTTrack< Ref_Phase2TrackerDigi_ > > >  tagTTTracksToken_;
+  //edm::EDGetTokenT<edmNew::DetSetVector< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > > >  tagTTTrackMCTruthToken_;
 
   std::string topFolderName_;
   unsigned int HQDelim_;
