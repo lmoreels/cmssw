@@ -27,19 +27,9 @@
 #include "TNamed.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "Validation/Phase2OuterTracker/interface/OuterTrackerStub.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-
-
-#include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"	//Needed for TTStubAssociationMap.h !
-#include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
-#include "DataFormats/L1TrackTrigger/interface/TTStub.h"
-#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
 #include "Geometry/Records/interface/StackedTrackerGeometryRecord.h"
 
@@ -54,8 +44,8 @@ OuterTrackerStub::OuterTrackerStub(const edm::ParameterSet& iConfig)
 
 {
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
-  tagTTStubs_ = conf_.getParameter< edm::InputTag >("TTStubs");
-  tagTTStubMCTruth_ = conf_.getParameter< edm::InputTag >("TTStubMCTruth");
+  tagTTStubsToken_ = consumes<edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > > (conf_.getParameter<edm::InputTag>("TTStubs") );
+  tagTTStubMCTruthToken_ = consumes<edmNew::DetSetVector< TTStubAssociationMap< Ref_Phase2TrackerDigi_ > > > (conf_.getParameter<edm::InputTag>("TTStubMCTruth") );
   verbosePlots_ = conf_.getUntrackedParameter<bool>("verbosePlots",false);
 }
 
@@ -88,17 +78,17 @@ OuterTrackerStub::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   theStackedGeometry = StackedGeometryHandle.product(); /// Note this is different from the "global" geometry
   
   /// Track Trigger
-  edm::Handle< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > > PixelDigiTTStubHandle;
-  iEvent.getByLabel( tagTTStubs_, PixelDigiTTStubHandle );
+  edm::Handle< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > > Phase2TrackerDigiTTStubHandle;
+  iEvent.getByToken( tagTTStubsToken_, Phase2TrackerDigiTTStubHandle );
   /// Track Trigger MC Truth
-  edm::Handle< TTStubAssociationMap< Ref_PixelDigi_ > > MCTruthTTStubHandle;
-  iEvent.getByLabel( tagTTStubMCTruth_, MCTruthTTStubHandle );
+  edm::Handle< TTStubAssociationMap< Ref_Phase2TrackerDigi_ > > MCTruthTTStubHandle;
+  iEvent.getByToken( tagTTStubMCTruthToken_, MCTruthTTStubHandle );
   
   /// Loop over the input Stubs
-  typename edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >::const_iterator otherInputIter;
-  typename edmNew::DetSet< TTStub< Ref_PixelDigi_ > >::const_iterator otherContentIter;
-  for ( otherInputIter = PixelDigiTTStubHandle->begin();
-       otherInputIter != PixelDigiTTStubHandle->end();
+  typename edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >::const_iterator otherInputIter;
+  typename edmNew::DetSet< TTStub< Ref_Phase2TrackerDigi_ > >::const_iterator otherContentIter;
+  for ( otherInputIter = Phase2TrackerDigiTTStubHandle->begin();
+       otherInputIter != Phase2TrackerDigiTTStubHandle->end();
        ++otherInputIter )
   {
     for ( otherContentIter = otherInputIter->begin();
@@ -106,7 +96,7 @@ OuterTrackerStub::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
          ++otherContentIter )
     {
       /// Make the reference to be put in the map
-      edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > tempStubRef = edmNew::makeRefTo( PixelDigiTTStubHandle, otherContentIter );
+      edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > tempStubRef = edmNew::makeRefTo( Phase2TrackerDigiTTStubHandle, otherContentIter );
       
       StackedTrackerDetId detIdStub( tempStubRef->getDetId() );
       

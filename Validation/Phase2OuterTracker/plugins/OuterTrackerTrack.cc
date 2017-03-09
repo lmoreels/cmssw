@@ -27,24 +27,9 @@
 #include "TNamed.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "Validation/Phase2OuterTracker/interface/OuterTrackerTrack.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-
-// For TrackingParticles
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"
-#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
-#include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
-#include "Geometry/Records/interface/StackedTrackerGeometryRecord.h"
 
 #include "TMath.h"
 #include <iostream>
@@ -57,8 +42,8 @@ OuterTrackerTrack::OuterTrackerTrack(const edm::ParameterSet& iConfig)
 {
   //now do what ever initialization is needed
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
-  tagTTTracks_ = conf_.getParameter< edm::InputTag >("TTTracks");
-  tagTTTrackMCTruth_ = conf_.getParameter< edm::InputTag >("TTTrackMCTruth");
+  tagTTTracksToken_ = consumes<edmNew::DetSetVector< TTTrack< Ref_Phase2TrackerDigi_ > > > (conf_.getParameter<edm::InputTag>("TTTracks") );
+  tagTTTrackMCTruthToken_ = consumes<edmNew::DetSetVector< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > > > (conf_.getParameter<edm::InputTag>("TTTrackMCTruth") );
   HQDelim_ = conf_.getParameter<int>("HQDelim");
   verbosePlots_ = conf_.getUntrackedParameter<bool>("verbosePlots",false);
 }
@@ -81,30 +66,32 @@ OuterTrackerTrack::~OuterTrackerTrack()
 void
 OuterTrackerTrack::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  /*
+  
   /// Track Trigger
-  edm::Handle< std::vector< TTTrack< Ref_PixelDigi_ > > >            PixelDigiTTTrackHandle;
-  iEvent.getByLabel( tagTTTracks_, PixelDigiTTTrackHandle );
+  edm::Handle< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > >            Phase2TrackerDigiTTTrackHandle;
+  iEvent.getByToken( tagTTTracksToken_, Phase2TrackerDigiTTTrackHandle );
   
   /// Track Trigger MC Truth
-  edm::Handle< TTTrackAssociationMap< Ref_PixelDigi_ > >   MCTruthTTTrackHandle;
-  iEvent.getByLabel( tagTTTrackMCTruth_, MCTruthTTTrackHandle );
+  edm::Handle< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > >   MCTruthTTTrackHandle;
+  iEvent.getByToken( tagTTTrackMCTruthToken_, MCTruthTTTrackHandle );
 	
 	
   unsigned int numHQTracks = 0;
   unsigned int numLQTracks = 0;
   
-  /// Go on only if there are TTTracks from PixelDigis
-  if ( PixelDigiTTTrackHandle->size() > 0 )
+  /// Go on only if there are TTTracks from Phase2TrackerDigis
+  if ( Phase2TrackerDigiTTTrackHandle->size() > 0 )
   {
     /// Loop over TTTracks
     unsigned int tkCnt = 0;
-    std::vector< TTTrack< Ref_PixelDigi_ > >::const_iterator iterTTTrack;
-    for ( iterTTTrack = PixelDigiTTTrackHandle->begin();
-         iterTTTrack != PixelDigiTTTrackHandle->end();
+    std::vector< TTTrack< Ref_Phase2TrackerDigi_ > >::const_iterator iterTTTrack;
+    for ( iterTTTrack = Phase2TrackerDigiTTTrackHandle->begin();
+         iterTTTrack != Phase2TrackerDigiTTTrackHandle->end();
          ++iterTTTrack )
     {
       /// Make the pointer
-      edm::Ptr< TTTrack< Ref_PixelDigi_ > > tempTrackPtr( PixelDigiTTTrackHandle, tkCnt++ );
+      edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > tempTrackPtr( Phase2TrackerDigiTTTrackHandle, tkCnt++ );
       
       unsigned int nStubs     = tempTrackPtr->getStubRefs().size();
       
@@ -154,6 +141,7 @@ OuterTrackerTrack::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   Track_LQ_N->Fill( numLQTracks );
   Track_HQ_N->Fill( numHQTracks );
 	
+  */
 }
 
 
