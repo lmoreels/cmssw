@@ -26,7 +26,6 @@
 #include "TNamed.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "Validation/Phase2OuterTracker/interface/OuterTrackerCluster.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -180,13 +179,9 @@ OuterTrackerCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 void
 OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
 {
-  
-  SiStripFolderOrganizer folder_organizer;
-  folder_organizer.setSiStripFolderName(topFolderName_);
-  folder_organizer.setSiStripFolder();
   std::string HistoName;
   
-  dqmStore_->setCurrentFolder(topFolderName_+"/Clusters/");
+  dqmStore_->setCurrentFolder(topFolderName_+"/TTClusters/");
   
   edm::ParameterSet psTTClusterEta =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Eta");
   HistoName = "Cluster_Gen_Eta";
@@ -293,12 +288,12 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
   /// Plots for debugging
   if ( verbosePlots_ )
   {
-    dqmStore_->setCurrentFolder(topFolderName_+"/Clusters/NClustersPerRing");
+    dqmStore_->setCurrentFolder(topFolderName_+"/TTClusters/NClustersPerRing");
     
-    for(int i=0;i<5;i++){
-      Char_t histo[200];
-      sprintf(histo, "NClusters_Gen_Disc+%d", i+1);     
-      Cluster_Gen_Endcap_Ring_Fw[i] = dqmStore_->book1D(histo, histo,
+    for (int i = 0; i < 5; i++)
+    {
+      HistoName = "NClusters_Gen_Disc+"+std::to_string(i+1);
+      Cluster_Gen_Endcap_Ring_Fw[i] = dqmStore_->book1D(HistoName, HistoName,
           psTTClusterRings.getParameter<int32_t>("Nbinsx"),
           psTTClusterRings.getParameter<double>("xmin"),
           psTTClusterRings.getParameter<double>("xmax"));
@@ -306,10 +301,10 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
       Cluster_Gen_Endcap_Ring_Fw[i]->setAxisTitle("# Genuine L1 Clusters", 2);
     }
 
-    for(int i=0;i<5;i++){
-      Char_t histo[200];
-      sprintf(histo, "NClusters_Gen_Disc-%d", i+1);     
-      Cluster_Gen_Endcap_Ring_Bw[i] = dqmStore_->book1D(histo, histo,
+    for (int i = 0; i < 5; i++)
+    {
+      HistoName = "NClusters_Gen_Disc-"+std::to_string(i+1);
+      Cluster_Gen_Endcap_Ring_Bw[i] = dqmStore_->book1D(HistoName, HistoName,
           psTTClusterRings.getParameter<int32_t>("Nbinsx"),
           psTTClusterRings.getParameter<double>("xmin"),
           psTTClusterRings.getParameter<double>("xmax"));
@@ -317,10 +312,10 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
       Cluster_Gen_Endcap_Ring_Bw[i]->setAxisTitle("# Genuine L1 Clusters", 2);
     }
 
-    for(int i=0;i<5;i++){
-      Char_t histo[200];
-      sprintf(histo, "NClusters_Unkn_Disc+%d", i+1);
-      Cluster_Unkn_Endcap_Ring_Fw[i] = dqmStore_->book1D(histo, histo,
+    for (int i = 0; i < 5; i++)
+    {
+      HistoName = "NClusters_Unkn_Disc+"+std::to_string(i+1);
+      Cluster_Unkn_Endcap_Ring_Fw[i] = dqmStore_->book1D(HistoName, HistoName,
           psTTClusterRings.getParameter<int32_t>("Nbinsx"),
           psTTClusterRings.getParameter<double>("xmin"),
           psTTClusterRings.getParameter<double>("xmax"));
@@ -328,10 +323,10 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
       Cluster_Unkn_Endcap_Ring_Fw[i]->setAxisTitle("# Unknown L1 Clusters", 2);
     }
 
-    for(int i=0;i<5;i++){
-      Char_t histo[200];
-      sprintf(histo, "NClusters_Unkn_Disc-%d", i+1);
-      Cluster_Unkn_Endcap_Ring_Bw[i] = dqmStore_->book1D(histo, histo,
+    for(int i = 0; i < 5; i++)
+    {
+      HistoName = "NClusters_Unkn_Disc-"+std::to_string(i+1);
+      Cluster_Unkn_Endcap_Ring_Bw[i] = dqmStore_->book1D(HistoName, HistoName,
           psTTClusterRings.getParameter<int32_t>("Nbinsx"),
           psTTClusterRings.getParameter<double>("xmin"),
           psTTClusterRings.getParameter<double>("xmax"));
@@ -339,10 +334,10 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
       Cluster_Unkn_Endcap_Ring_Bw[i]->setAxisTitle("# Unknown L1 Clusters", 2);
     }
 
-    for(int i=0;i<5;i++){
-      Char_t histo[200];
-      sprintf(histo, "NClusters_Comb_Disc+%d", i+1);
-      Cluster_Comb_Endcap_Ring_Fw[i] = dqmStore_->book1D(histo, histo,
+    for (int i = 0; i < 5; i++)
+    {
+      HistoName = "NClusters_Comb_Disc+"+std::to_string(i+1);
+      Cluster_Comb_Endcap_Ring_Fw[i] = dqmStore_->book1D(HistoName, HistoName,
           psTTClusterRings.getParameter<int32_t>("Nbinsx"),
           psTTClusterRings.getParameter<double>("xmin"),
           psTTClusterRings.getParameter<double>("xmax"));
@@ -350,10 +345,10 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
       Cluster_Comb_Endcap_Ring_Fw[i]->setAxisTitle("# Combinatorial L1 Clusters", 2);
     }
 
-    for(int i=0;i<5;i++){
-      Char_t histo[200];
-      sprintf(histo, "NClusters_Comb_Disc-%d", i+1);
-      Cluster_Comb_Endcap_Ring_Bw[i] = dqmStore_->book1D(histo, histo,
+    for (int i = 0; i < 5; i++)
+    {
+      HistoName = "NClusters_Comb_Disc-"+std::to_string(i+1);
+      Cluster_Comb_Endcap_Ring_Bw[i] = dqmStore_->book1D(HistoName, HistoName,
           psTTClusterRings.getParameter<int32_t>("Nbinsx"),
           psTTClusterRings.getParameter<double>("xmin"),
           psTTClusterRings.getParameter<double>("xmax"));
@@ -361,7 +356,7 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
       Cluster_Comb_Endcap_Ring_Bw[i]->setAxisTitle("# Combinatorial L1 Clusters", 2);
     }
   
-  } /// End verbosePlots
+  }  /// end verbosePlots
   
 } //end of method
 

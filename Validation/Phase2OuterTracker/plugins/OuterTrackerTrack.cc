@@ -28,7 +28,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "Validation/Phase2OuterTracker/interface/OuterTrackerTrack.h"
 
 #include "TMath.h"
@@ -135,7 +134,7 @@ OuterTrackerTrack::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         Track_LQ_Chi2_NStubs->Fill( nStubs, trackChi2 );
         Track_LQ_Chi2Red_NStubs->Fill( nStubs, trackChi2R );     
       }
-    } /// End of loop over TTTracks
+    }  /// end of loop over TTTracks
   }
   
   Track_LQ_N->Fill( numLQTracks );
@@ -150,12 +149,9 @@ OuterTrackerTrack::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 void 
 OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
 {
-  SiStripFolderOrganizer folder_organizer;
-  folder_organizer.setSiStripFolderName(topFolderName_);
-  folder_organizer.setSiStripFolder();
   std::string HistoName;
   
-  dqmStore_->setCurrentFolder(topFolderName_+"/Tracks/");
+  dqmStore_->setCurrentFolder(topFolderName_+"/TTTracks/");
   
   // Number of TTStubs per TTTrack
   edm::ParameterSet psTrack_NStubs =  conf_.getParameter<edm::ParameterSet>("TH1TTTrack_NStubs");
@@ -169,7 +165,7 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
   
   
   /// Plots where all TTTracks are made from up to X TTStubs
-  dqmStore_->setCurrentFolder(topFolderName_+"/Tracks/LQ/");
+  dqmStore_->setCurrentFolder(topFolderName_+"/TTTracks/LQ/");
   
   // Number of TTTracks
   edm::ParameterSet psTrack_N =  conf_.getParameter<edm::ParameterSet>("TH1TTTrack_N");
@@ -268,8 +264,8 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
   Track_LQ_Chi2Red_NStubs->setAxisTitle("Genuine L1 Track #chi^{2}/ndf", 2);
   
   
-  /// Plots where all TTTracks are made from at least 3 TTStubs
-  dqmStore_->setCurrentFolder(topFolderName_+"/Tracks/HQ/");
+  /// Plots where all TTTracks are made from at least X TTStubs
+  dqmStore_->setCurrentFolder(topFolderName_+"/TTTracks/HQ/");
   
   // Number of TTTracks
   HistoName = "Track_HQ_N";

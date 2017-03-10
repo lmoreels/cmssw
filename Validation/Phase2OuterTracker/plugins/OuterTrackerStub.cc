@@ -28,7 +28,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "Validation/Phase2OuterTracker/interface/OuterTrackerStub.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -182,12 +181,9 @@ OuterTrackerStub::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 void 
 OuterTrackerStub::beginRun(edm::Run const&, edm::EventSetup const&)
 {
-  SiStripFolderOrganizer folder_organizer;
-  folder_organizer.setSiStripFolderName(topFolderName_);
-  folder_organizer.setSiStripFolder();
   std::string HistoName;
   
-  dqmStore_->setCurrentFolder(topFolderName_+"/Stubs/");
+  dqmStore_->setCurrentFolder(topFolderName_+"/TTStubs/");
   
   edm::ParameterSet psTTStubEta =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Eta");
   HistoName = "Stub_Gen_Eta";
@@ -295,12 +291,12 @@ OuterTrackerStub::beginRun(edm::Run const&, edm::EventSetup const&)
   /// Plots for debugging
   if ( verbosePlots_ )
   {
-    dqmStore_->setCurrentFolder(topFolderName_+"/Stubs/NStubsPerRing");
+    dqmStore_->setCurrentFolder(topFolderName_+"/TTStubs/NStubsPerRing");
 
-    for(int i=0;i<5;i++){
-      Char_t histo[200];
-      sprintf(histo, "NStubs_Gen_Disk+%d", i+1);
-      Stub_Gen_Endcap_Ring_Fw[i] = dqmStore_->book1D(histo, histo,
+    for (int i = 0; i < 5; i++)
+    {
+      HistoName = "NStubs_Gen_Disk+"+std::to_string(i+1);
+      Stub_Gen_Endcap_Ring_Fw[i] = dqmStore_->book1D(HistoName, HistoName,
           psTTStubRing.getParameter<int32_t>("Nbinsx"),
           psTTStubRing.getParameter<double>("xmin"),
           psTTStubRing.getParameter<double>("xmax"));
@@ -308,10 +304,10 @@ OuterTrackerStub::beginRun(edm::Run const&, edm::EventSetup const&)
       Stub_Gen_Endcap_Ring_Fw[i]->setAxisTitle("# Genuine L1 Stubs", 2);
     }  
 
-    for(int i=0;i<5;i++){
-      Char_t histo[200];
-      sprintf(histo, "NStubs_Gen_Disk-%d", i+1);
-      Stub_Gen_Endcap_Ring_Bw[i] = dqmStore_->book1D(histo, histo,
+    for (int i = 0; i < 5; i++)
+    {
+      HistoName = "NStubs_Gen_Disk-"+std::to_string(i+1);
+      Stub_Gen_Endcap_Ring_Bw[i] = dqmStore_->book1D(HistoName, HistoName,
           psTTStubRing.getParameter<int32_t>("Nbinsx"),
           psTTStubRing.getParameter<double>("xmin"),
           psTTStubRing.getParameter<double>("xmax"));
@@ -319,10 +315,10 @@ OuterTrackerStub::beginRun(edm::Run const&, edm::EventSetup const&)
       Stub_Gen_Endcap_Ring_Bw[i]->setAxisTitle("# Genuine L1 Stubs", 2);
     }
 
-    for(int i=0;i<5;i++){
-      Char_t histo[200];
-      sprintf(histo, "NStubs_Unkn_Disk+%d", i+1);
-      Stub_Unkn_Endcap_Ring_Fw[i] = dqmStore_->book1D(histo, histo,
+    for (int i = 0; i < 5; i++)
+    {
+      HistoName = "NStubs_Unkn_Disk+"+std::to_string(i+1);
+      Stub_Unkn_Endcap_Ring_Fw[i] = dqmStore_->book1D(HistoName, HistoName,
           psTTStubRing.getParameter<int32_t>("Nbinsx"),
           psTTStubRing.getParameter<double>("xmin"),
           psTTStubRing.getParameter<double>("xmax"));
@@ -330,10 +326,10 @@ OuterTrackerStub::beginRun(edm::Run const&, edm::EventSetup const&)
       Stub_Unkn_Endcap_Ring_Fw[i]->setAxisTitle("# Unknown L1 Stubs", 2);
     }
 
-    for(int i=0;i<5;i++){
-      Char_t histo[200];
-      sprintf(histo, "NStubs_Unkn_Disk-%d", i+1);
-      Stub_Unkn_Endcap_Ring_Bw[i] = dqmStore_->book1D(histo, histo,
+    for (int i = 0; i < 5; i++)
+    {
+      HistoName = "NStubs_Unkn_Disk-"+std::to_string(i+1);
+      Stub_Unkn_Endcap_Ring_Bw[i] = dqmStore_->book1D(HistoName, HistoName,
           psTTStubRing.getParameter<int32_t>("Nbinsx"),
           psTTStubRing.getParameter<double>("xmin"),
           psTTStubRing.getParameter<double>("xmax"));
@@ -341,10 +337,10 @@ OuterTrackerStub::beginRun(edm::Run const&, edm::EventSetup const&)
       Stub_Unkn_Endcap_Ring_Bw[i]->setAxisTitle("# Unknown L1 Stubs", 2);
     }
 
-    for(int i=0;i<5;i++){
-      Char_t histo[200];
-      sprintf(histo, "NStubs_Comb_Disk+%d", i+1);
-      Stub_Comb_Endcap_Ring_Fw[i] = dqmStore_->book1D(histo, histo,
+    for (int i = 0; i < 5; i++)
+    {
+      HistoName = "NStubs_Comb_Disk+"+std::to_string(i+1);
+      Stub_Comb_Endcap_Ring_Fw[i] = dqmStore_->book1D(HistoName, HistoName,
           psTTStubRing.getParameter<int32_t>("Nbinsx"),
           psTTStubRing.getParameter<double>("xmin"),
           psTTStubRing.getParameter<double>("xmax"));
@@ -352,10 +348,10 @@ OuterTrackerStub::beginRun(edm::Run const&, edm::EventSetup const&)
       Stub_Comb_Endcap_Ring_Fw[i]->setAxisTitle("# Combinatorial L1 Stubs", 2);
     }
 
-    for(int i=0;i<5;i++){
-      Char_t histo[200];
-      sprintf(histo, "NStubs_Comb_Disk-%d", i+1);
-      Stub_Comb_Endcap_Ring_Bw[i] = dqmStore_->book1D(histo, histo,
+    for (int i = 0; i < 5; i++)
+    {
+      HistoName = "NStubs_Comb_Disk-"+std::to_string(i+1);
+      Stub_Comb_Endcap_Ring_Bw[i] = dqmStore_->book1D(HistoName, HistoName,
           psTTStubRing.getParameter<int32_t>("Nbinsx"),
           psTTStubRing.getParameter<double>("xmin"),
           psTTStubRing.getParameter<double>("xmax"));
@@ -363,7 +359,7 @@ OuterTrackerStub::beginRun(edm::Run const&, edm::EventSetup const&)
       Stub_Comb_Endcap_Ring_Bw[i]->setAxisTitle("# Combinatorial L1 Stubs", 2);
     }
     
-  } /// End verbosePlots
+  }  /// end verbosePlots
 }
 
 
