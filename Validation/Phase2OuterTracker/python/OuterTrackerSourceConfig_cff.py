@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 from Validation.Phase2OuterTracker.OuterTrackerCluster_cfi import *
-from Validation.Phase2OuterTracker.OuterTrackerMCTruth_cfi import *
+#from Validation.Phase2OuterTracker.OuterTrackerMCTruth_cfi import *
 from Validation.Phase2OuterTracker.OuterTrackerStub_cfi import *
 #from Validation.Phase2OuterTracker.OuterTrackerTrack_cfi import *
 
 OuterTrackerSource = cms.Sequence(OuterTrackerCluster
-				  * OuterTrackerMCTruth
+#				  * OuterTrackerMCTruth
 				  * OuterTrackerStub
 #				  * OuterTrackerTrack
           )

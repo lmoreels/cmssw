@@ -61,8 +61,7 @@ public:
   DQMStore* dqmStore_;
   edm::ParameterSet conf_;
   //edm::EDGetTokenT<edmNew::DetSetVector< TTTrack< Ref_Phase2TrackerDigi_ > > >  tagTTTracksToken_;
-  //Check if TTTrackAssociationMap is correct format
-  //edm::EDGetTokenT<edmNew::DetSetVector< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > > >  tagTTTrackMCTruthToken_;
+  //edm::EDGetTokenT< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > >  tagTTTrackMCTruthToken_;
 
   std::string topFolderName_;
   unsigned int HQDelim_;

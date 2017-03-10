@@ -4,7 +4,7 @@ OuterTrackerTrack = cms.EDAnalyzer('OuterTrackerTrack',
     
     TopFolderName  = cms.string('Phase2OuterTrackerV'),
     TTTracks       = cms.InputTag("TTTracksFromPhase2TrackerDigis", "Level1TTTracks"),
-    TTTrackMCTruth = cms.InputTag("TTTrackAssociatorFromPhase2TrackerDigis", "Level1TTTracks"),
+    TTTrackMCTruth = cms.InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks"),
     HQDelim        = cms.int32(4),
     verbosePlots   = cms.untracked.bool(False),
     

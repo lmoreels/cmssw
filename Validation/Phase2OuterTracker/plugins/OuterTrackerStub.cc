@@ -48,7 +48,7 @@ OuterTrackerStub::OuterTrackerStub(const edm::ParameterSet& iConfig)
 {
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
   tagTTStubsToken_ = consumes<edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > > (conf_.getParameter<edm::InputTag>("TTStubs") );
-  tagTTStubMCTruthToken_ = consumes<edmNew::DetSetVector< TTStubAssociationMap< Ref_Phase2TrackerDigi_ > > > (conf_.getParameter<edm::InputTag>("TTStubMCTruth") );
+  tagTTStubMCTruthToken_ = consumes< TTStubAssociationMap< Ref_Phase2TrackerDigi_ > > (conf_.getParameter<edm::InputTag>("TTStubMCTruth") );
   nDiscs_ = conf_.getUntrackedParameter<int>("nDiscs", 5);
   verbosePlots_ = conf_.getUntrackedParameter<bool>("verbosePlots",false);
 }

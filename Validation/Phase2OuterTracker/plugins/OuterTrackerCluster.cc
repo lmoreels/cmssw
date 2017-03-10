@@ -45,7 +45,7 @@ OuterTrackerCluster::OuterTrackerCluster(const edm::ParameterSet& iConfig)
 {
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
   tagTTClustersToken_ = consumes<edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > > (conf_.getParameter<edm::InputTag>("TTClusters") );
-  tagTTClusterMCTruthToken_ = consumes<edmNew::DetSetVector< TTClusterAssociationMap< Ref_Phase2TrackerDigi_ > > > (conf_.getParameter<edm::InputTag>("TTClusterMCTruth") );
+  tagTTClusterMCTruthToken_ = consumes< TTClusterAssociationMap< Ref_Phase2TrackerDigi_ > > (conf_.getParameter<edm::InputTag>("TTClusterMCTruth") );
   nDiscs_ = conf_.getUntrackedParameter<int>("nDiscs", 5);
   verbosePlots_ = conf_.getUntrackedParameter<bool>("verbosePlots",false);
 }
@@ -107,8 +107,6 @@ OuterTrackerCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       bool genuineClu     = MCTruthTTClusterHandle->isGenuine( tempCluRef );
       bool combinClu      = MCTruthTTClusterHandle->isCombinatoric( tempCluRef );
       
-      // necessary??
-      if ( genuineClu ) edm::Ptr< TrackingParticle > thisTP = MCTruthTTClusterHandle->findTrackingParticlePtr(tempCluRef);
       
       MeasurementPoint mp = tempCluRef->findAverageLocalCoordinates();
       const GeomDet* theGeomDet = theTrackerGeometry->idToDet(detIdClu);
@@ -169,7 +167,7 @@ OuterTrackerCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       /// Eta distribution in function of genuine/combinatorial/unknown cluster
       if ( genuineClu ) Cluster_Gen_Eta->Fill( posClu.eta() );
       else if ( combinClu ) Cluster_Comb_Eta->Fill( posClu.eta() );
-      else Cluster_Unkn_Eta->Fill( posClu.eta() );      
+      else Cluster_Unkn_Eta->Fill( posClu.eta() );
     } // end loop contentIter
   } // end loop inputIter
   
