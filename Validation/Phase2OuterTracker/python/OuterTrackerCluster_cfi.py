@@ -5,7 +5,7 @@ OuterTrackerCluster = cms.EDAnalyzer('OuterTrackerCluster',
     TopFolderName    = cms.string('Phase2OuterTrackerV'),
     TTClusters       = cms.InputTag("TTClustersFromPhase2TrackerDigis", "ClusterInclusive"),
     TTClusterMCTruth = cms.InputTag("TTClusterAssociatorFromPhase2TrackerDigis", "ClusterInclusive"),
-    nDiscs           = cms.untracked.int(5),
+    nDiscs           = cms.untracked.int32(5),
     verbosePlots     = cms.untracked.bool(False),
 
 
@@ -18,7 +18,7 @@ OuterTrackerCluster = cms.EDAnalyzer('OuterTrackerCluster',
 
 # Cluster EC Discs
     TH1TTCluster_Discs = cms.PSet(
-        Nbinsx = cms.int32(nDiscs),  # CHECK !
+        Nbinsx = cms.int32(5),
         xmax = cms.double(5.5),                      
         xmin = cms.double(0.5)
         ),

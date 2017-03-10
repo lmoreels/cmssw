@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Validation.RecoMuon.PostProcessor_cff import *
 from Validation.RecoTrack.PostProcessorTracker_cfi import *
+from Validation.Phase2OuterTracker.OuterTrackerClientConfig_cff import *
 from Validation.MuonIsolation.PostProcessor_cff import *
 from Validation.CaloTowers.CaloTowersPostProcessor_cff import *
 from Validation.HcalHits.SimHitsPostProcessor_cff import *
@@ -72,6 +73,8 @@ postValidation_trackingOnly = cms.Sequence(
       postProcessorTrackSequenceTrackingOnly
     + postProcessorVertexSequence
 )
+
+postValidationOuterTracker = cms.Sequence(OuterTrackerClient)
 
 postValidation_muons = cms.Sequence(
     recoMuonPostProcessors

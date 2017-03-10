@@ -7,6 +7,7 @@ from Validation.TrackerRecHits.trackerRecHitsValidation_cff import *
 from Validation.TrackingMCTruth.trackingTruthValidation_cfi import *
 from Validation.RecoTrack.SiTrackingRecHitsValid_cff import *
 from Validation.RecoTrack.TrackValidation_cff import *
+from Validation.Phase2OuterTracker.OuterTrackerSourceConfig_cff import *
 from Validation.EcalHits.ecalSimHitsValidationSequence_cff import *
 from Validation.EcalDigis.ecalDigisValidationSequence_cff import *
 from Validation.EcalRecHits.ecalRecHitsValidationSequence_cff import *
@@ -131,6 +132,12 @@ globalPrevalidationTrackingOnly = cms.Sequence(
 )
 globalValidationTrackingOnly = cms.Sequence()
 
+globalPrevalidationOuterTracker = cms.Sequence(
+      simHitTPAssocProducer
+    + OuterTrackerSource
+)
+
+globalValidationOuterTracker = cms.Sequence()
 
 globalValidationJetMETonly = cms.Sequence(
                                    JetValidation 
