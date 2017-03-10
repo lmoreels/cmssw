@@ -4,7 +4,8 @@ OuterTrackerStub = cms.EDAnalyzer('OuterTrackerStub',
     
     TopFolderName = cms.string('Phase2OuterTrackerV'),
     TTStubs       = cms.InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"),
-    TTStubMCTruth = cms.InputTag("TTStubAssociatorFromPhase2TrackerDigis", "StubAccepted"),    
+    TTStubMCTruth = cms.InputTag("TTStubAssociatorFromPhase2TrackerDigis", "StubAccepted"),
+    nDiscs        = cms.untracked.int(5),
     verbosePlots  = cms.untracked.bool(False),
 
 
@@ -15,9 +16,9 @@ OuterTrackerStub = cms.EDAnalyzer('OuterTrackerStub',
         xmin = cms.double(0.5)
         ),
     
-# Stub Disks
-    TH1TTStub_Disk= cms.PSet(
-        Nbinsx = cms.int32(5),
+# Stub Discs
+    TH1TTStub_Disc= cms.PSet(
+        Nbinsx = cms.int32(nDiscs),  # CHECK !
         xmax = cms.double(5.5),                      
         xmin = cms.double(0.5)
         ),

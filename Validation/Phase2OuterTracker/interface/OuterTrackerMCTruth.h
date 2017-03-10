@@ -97,18 +97,18 @@ public:
   MonitorElement* Stub_W_TPart_Pt_AllLayers = 0;
   MonitorElement* Stub_W_TPart_InvPt_AllLayers = 0;
   
-  MonitorElement* Stub_InvPt_TPart_InvPt_AllDisks = 0;
-  MonitorElement* Stub_Pt_TPart_Pt_AllDisks = 0;
-  MonitorElement* Stub_Eta_TPart_Eta_AllDisks = 0;
-  MonitorElement* Stub_Phi_TPart_Phi_AllDisks = 0;
+  MonitorElement* Stub_InvPt_TPart_InvPt_AllDiscs = 0;
+  MonitorElement* Stub_Pt_TPart_Pt_AllDiscs = 0;
+  MonitorElement* Stub_Eta_TPart_Eta_AllDiscs = 0;
+  MonitorElement* Stub_Phi_TPart_Phi_AllDiscs = 0;
   
-  MonitorElement* Stub_InvPtRes_TPart_Eta_AllDisks = 0;
-  MonitorElement* Stub_PtRes_TPart_Eta_AllDisks = 0;
-  MonitorElement* Stub_EtaRes_TPart_Eta_AllDisks = 0;
-  MonitorElement* Stub_PhiRes_TPart_Eta_AllDisks = 0;
+  MonitorElement* Stub_InvPtRes_TPart_Eta_AllDiscs = 0;
+  MonitorElement* Stub_PtRes_TPart_Eta_AllDiscs = 0;
+  MonitorElement* Stub_EtaRes_TPart_Eta_AllDiscs = 0;
+  MonitorElement* Stub_PhiRes_TPart_Eta_AllDiscs = 0;
   
-  MonitorElement* Stub_W_TPart_Pt_AllDisks = 0;
-  MonitorElement* Stub_W_TPart_InvPt_AllDisks = 0;
+  MonitorElement* Stub_W_TPart_Pt_AllDiscs = 0;
+  MonitorElement* Stub_W_TPart_InvPt_AllDiscs = 0;
   
   
   // Tracks vs. TrackingParticles

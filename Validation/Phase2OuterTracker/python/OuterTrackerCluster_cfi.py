@@ -4,24 +4,25 @@ OuterTrackerCluster = cms.EDAnalyzer('OuterTrackerCluster',
     
     TopFolderName    = cms.string('Phase2OuterTrackerV'),
     TTClusters       = cms.InputTag("TTClustersFromPhase2TrackerDigis", "ClusterInclusive"),
-    TTClusterMCTruth = cms.InputTag("TTClusterAssociatorFromPhase2TrackerDigis", "ClusterInclusive"),    
+    TTClusterMCTruth = cms.InputTag("TTClusterAssociatorFromPhase2TrackerDigis", "ClusterInclusive"),
+    nDiscs           = cms.untracked.int(5),
     verbosePlots     = cms.untracked.bool(False),
 
 
-# Cluster Barrel Layers    
+# Cluster Barrel Layers
     TH1TTCluster_Layers = cms.PSet(
         Nbinsx = cms.int32(6),
         xmax = cms.double(6.5),                      
         xmin = cms.double(0.5)
         ),
-    
-# Cluster EC Disks    
-    TH1TTCluster_Disks = cms.PSet(
-        Nbinsx = cms.int32(5),
+
+# Cluster EC Discs
+    TH1TTCluster_Discs = cms.PSet(
+        Nbinsx = cms.int32(nDiscs),  # CHECK !
         xmax = cms.double(5.5),                      
         xmin = cms.double(0.5)
         ),
-    
+
 # Cluster EC Rings
     TH1TTCluster_Rings = cms.PSet(
         Nbinsx = cms.int32(16),

@@ -61,6 +61,7 @@ public:
   edm::EDGetTokenT<edmNew::DetSetVector< TTStubAssociationMap< Ref_Phase2TrackerDigi_ > > >  tagTTStubMCTruthToken_;
 
   std::string topFolderName_;
+  int nDiscs_;
   bool verbosePlots_;
   
 };
