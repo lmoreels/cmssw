@@ -57,11 +57,11 @@ OuterTrackerMCTruth::OuterTrackerMCTruth(const edm::ParameterSet& iConfig)
 {
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
   tagTTClustersToken_ = consumes<edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > > (conf_.getParameter<edm::InputTag>("TTClusters") );
-  tagTTClusterMCTruthToken_ = consumes<edmNew::DetSetVector< TTClusterAssociationMap< Ref_Phase2TrackerDigi_ > > > (conf_.getParameter<edm::InputTag>("TTClusterMCTruth") );
+  tagTTClusterMCTruthToken_ = consumes< TTClusterAssociationMap< Ref_Phase2TrackerDigi_ > > (conf_.getParameter<edm::InputTag>("TTClusterMCTruth") );
   tagTTStubsToken_ = consumes<edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > > (conf_.getParameter<edm::InputTag>("TTStubs") );
-  tagTTStubMCTruthToken_ = consumes<edmNew::DetSetVector< TTStubAssociationMap< Ref_Phase2TrackerDigi_ > > > (conf_.getParameter<edm::InputTag>("TTStubMCTruth") );
+  tagTTStubMCTruthToken_ = consumes< TTStubAssociationMap< Ref_Phase2TrackerDigi_ > > (conf_.getParameter<edm::InputTag>("TTStubMCTruth") );
   //tagTTTracksToken_ = consumes<edmNew::DetSetVector< TTTrack< Ref_Phase2TrackerDigi_ > > > (conf_.getParameter<edm::InputTag>("TTTracks") );
-  //tagTTTrackMCTruthToken_ = consumes<edmNew::DetSetVector< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > > > (conf_.getParameter<edm::InputTag>("TTTrackMCTruth") );
+  //tagTTTrackMCTruthToken_ = consumes< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > > (conf_.getParameter<edm::InputTag>("TTTrackMCTruth") );
   HQDelim_ = conf_.getParameter<int>("HQDelim");
   verbosePlots_ = conf_.getUntrackedParameter<bool>("verbosePlots",false);
 }

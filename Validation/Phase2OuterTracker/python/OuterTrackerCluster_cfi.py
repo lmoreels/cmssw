@@ -4,7 +4,7 @@ OuterTrackerCluster = cms.EDAnalyzer('OuterTrackerCluster',
     
     TopFolderName    = cms.string('Phase2OuterTrackerV'),
     TTClusters       = cms.InputTag("TTClustersFromPhase2TrackerDigis", "ClusterInclusive"),
-    TTClusterMCTruth = cms.InputTag("TTClusterAssociatorFromPhase2TrackerDigis", "ClusterInclusive"),
+    TTClusterMCTruth = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterInclusive"),
     nDiscs           = cms.untracked.int32(5),
     verbosePlots     = cms.untracked.bool(False),
 

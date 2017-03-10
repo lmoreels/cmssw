@@ -4,7 +4,7 @@ OuterTrackerStub = cms.EDAnalyzer('OuterTrackerStub',
     
     TopFolderName = cms.string('Phase2OuterTrackerV'),
     TTStubs       = cms.InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"),
-    TTStubMCTruth = cms.InputTag("TTStubAssociatorFromPhase2TrackerDigis", "StubAccepted"),
+    TTStubMCTruth = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),
     nDiscs        = cms.untracked.int32(5),
     verbosePlots  = cms.untracked.bool(False),
 

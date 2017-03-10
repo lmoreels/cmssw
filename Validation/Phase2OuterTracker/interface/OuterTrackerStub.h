@@ -58,7 +58,7 @@ public:
   DQMStore* dqmStore_;
   edm::ParameterSet conf_;
   edm::EDGetTokenT<edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > >  tagTTStubsToken_;
-  edm::EDGetTokenT<edmNew::DetSetVector< TTStubAssociationMap< Ref_Phase2TrackerDigi_ > > >  tagTTStubMCTruthToken_;
+  edm::EDGetTokenT< TTStubAssociationMap< Ref_Phase2TrackerDigi_ > >  tagTTStubMCTruthToken_;
 
   std::string topFolderName_;
   int nDiscs_;
