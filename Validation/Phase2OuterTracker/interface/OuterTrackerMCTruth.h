@@ -21,6 +21,12 @@
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
 //#include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"  // does not exist yet in 90X
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+
+class PixelGeomDetUnit;
+class PixelTopology;
+using Phase2TrackerGeomDetUnit = PixelGeomDetUnit;
+using Phase2TrackerTopology = PixelTopology;
 
 class DQMStore;
 
@@ -93,6 +99,7 @@ public:
   MonitorElement* Stub_PtRes_TPart_Eta_AllLayers = 0;
   MonitorElement* Stub_EtaRes_TPart_Eta_AllLayers = 0;
   MonitorElement* Stub_PhiRes_TPart_Eta_AllLayers = 0;
+  MonitorElement* Stub_PhiRes_TPart_Phi_AllLayers = 0;
   
   MonitorElement* Stub_W_TPart_Pt_AllLayers = 0;
   MonitorElement* Stub_W_TPart_InvPt_AllLayers = 0;
@@ -106,6 +113,7 @@ public:
   MonitorElement* Stub_PtRes_TPart_Eta_AllDiscs = 0;
   MonitorElement* Stub_EtaRes_TPart_Eta_AllDiscs = 0;
   MonitorElement* Stub_PhiRes_TPart_Eta_AllDiscs = 0;
+  MonitorElement* Stub_PhiRes_TPart_Phi_AllDiscs = 0;
   
   MonitorElement* Stub_W_TPart_Pt_AllDiscs = 0;
   MonitorElement* Stub_W_TPart_InvPt_AllDiscs = 0;
@@ -138,6 +146,7 @@ public:
  private:
   DQMStore* dqmStore_;
   edm::ParameterSet conf_;
+  edm::EDGetTokenT< TrackingParticleCollection > tagTParticleToken_;
   edm::EDGetTokenT<edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > >  tagTTClustersToken_;
   edm::EDGetTokenT< TTClusterAssociationMap< Ref_Phase2TrackerDigi_ > >  tagTTClusterMCTruthToken_;
   edm::EDGetTokenT<edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > >  tagTTStubsToken_;
