@@ -26,7 +26,7 @@
 #include "TNamed.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
+//#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "Validation/Phase2OuterTracker/interface/OuterTrackerMCTruth.h"
 
@@ -40,9 +40,11 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+//#include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
+//#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+//#include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 
 
 #include "TMath.h"
@@ -56,6 +58,7 @@ OuterTrackerMCTruth::OuterTrackerMCTruth(const edm::ParameterSet& iConfig)
 
 {
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
+  tagTParticleToken_ = consumes< TrackingParticleCollection > (conf_.getParameter<edm::InputTag>("TParticles") );
   tagTTClustersToken_ = consumes<edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > > (conf_.getParameter<edm::InputTag>("TTClusters") );
   tagTTClusterMCTruthToken_ = consumes< TTClusterAssociationMap< Ref_Phase2TrackerDigi_ > > (conf_.getParameter<edm::InputTag>("TTClusterMCTruth") );
   tagTTStubsToken_ = consumes<edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > > (conf_.getParameter<edm::InputTag>("TTStubs") );
@@ -70,7 +73,7 @@ OuterTrackerMCTruth::OuterTrackerMCTruth(const edm::ParameterSet& iConfig)
 OuterTrackerMCTruth::~OuterTrackerMCTruth()
 {
 	
-  // do anything here that needs to be done at desctruction time
+  // do anything here that needs to be done at destruction time
   // (e.g. close files, deallocate resources etc.)
 	
 }
@@ -84,10 +87,11 @@ OuterTrackerMCTruth::~OuterTrackerMCTruth()
 void
 OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  // CHECK HOW TO DO THIS !!
   /// TrackingParticles
-  edm::Handle< std::vector< TrackingParticle > > TrackingParticleHandle;
-  iEvent.getByLabel( "mix", "MergedTrackTruth", TrackingParticleHandle );
+  //edm::Handle< std::vector< TrackingParticle > > TrackingParticleHandle;
+  edm::Handle< TrackingParticleCollection > TrackingParticleHandle;
+  iEvent.getByToken( tagTParticleToken_, TrackingParticleHandle);
+  //const TrackingParticleCollection& TPartCollection = *(TrackingParticleHandle.product());
   
   /// Track Trigger
   edm::Handle< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > > Phase2TrackerDigiTTClusterHandle;
@@ -110,11 +114,11 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 //   const TrackerTopology* tTopo;
 //   iSetup.get< TrackerTopologyRcd >().get(tTopoHandle);
 //   tTopo = tTopoHandle.product();
-//   
-//   edm::ESHandle< TrackerGeometry > tGeometryHandle;
-//   const TrackerGeometry* theTrackerGeometry;
-//   iSetup.get< TrackerDigiGeometryRecord >().get( tGeometryHandle );
-//   theTrackerGeometry = tGeometryHandle.product();
+  
+  edm::ESHandle< TrackerGeometry > tGeometryHandle;
+  const TrackerGeometry* theTrackerGeometry;
+  iSetup.get< TrackerDigiGeometryRecord >().get( tGeometryHandle );
+  theTrackerGeometry = tGeometryHandle.product();
   
   // CHECK IF THIS STILL WORKS !!
   /// Magnetic Field
@@ -145,7 +149,7 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       SimVtx_XY->Fill( tempTPPtr->vertex().x(), tempTPPtr->vertex().y() );
       SimVtx_RZ->Fill( tempTPPtr->vertex().z(), tempTPPtr->vertex().rho() );
       
-      /// Here we have only tracks form primary vertices
+      /// Here we have only tracks from primary vertices
       /// Check Pt spectrum and pseudorapidity for over-threshold tracks
       TPart_Pt->Fill( tempTPPtr->p4().pt() );
       if ( tempTPPtr->p4().pt() > 10.0 )
@@ -267,28 +271,26 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
           }
           
           // CHECK THIS !!
-//           /// Classify the stub
-//           StackedTrackerDetId stDetId( theseStubs.at(js)->getDetId() );
-//           /// Check if there are PS modules in seed or candidate
-//           const GeomDetUnit* det0 = theStackedGeometry->idToDetUnit( stDetId, 0 );
-//           const GeomDetUnit* det1 = theStackedGeometry->idToDetUnit( stDetId, 1 );
-//           /// Find pixel pitch and topology related information
-//           const PixelGeomDetUnit* pix0 = dynamic_cast< const PixelGeomDetUnit* >( det0 );
-//           const PixelGeomDetUnit* pix1 = dynamic_cast< const PixelGeomDetUnit* >( det1 );
-//           const PixelTopology* top0 = dynamic_cast< const PixelTopology* >( &(pix0->specificTopology()) );
-//           const PixelTopology* top1 = dynamic_cast< const PixelTopology* >( &(pix1->specificTopology()) );
-//           int cols0 = top0->ncolumns();
-//           int cols1 = top1->ncolumns();
-//           int ratio = cols0/cols1; /// This assumes the ratio is integer!
-//           
-//           if ( ratio == 1 ) /// 2S Modules
-//           {
-//             TPart_Stub_Eta_Pt10_Num2S->Fill( tempTPPtr->momentum().eta() );
-//           }
-//           else /// PS
-//           {
-//             TPart_Stub_Eta_Pt10_NumPS->Fill( tempTPPtr->momentum().eta() );
-//           }
+          /// Classify the stub
+          //DetId stDetId( theseStubs.at(js)->getDetId() );
+          const GeomDetUnit* det0 = theTrackerGeometry->idToDetUnit( (theseStubs.at(js)->getClusterRef(0))->getDetId() );
+          const GeomDetUnit* det1 = theTrackerGeometry->idToDetUnit( (theseStubs.at(js)->getClusterRef(1))->getDetId() );
+          /// Check if there are PS modules in seed or candidate
+          /// Find pixel pitch and topology related information
+          const Phase2TrackerGeomDetUnit* tk0 = dynamic_cast< const Phase2TrackerGeomDetUnit* >( det0 );
+          const Phase2TrackerGeomDetUnit* tk1 = dynamic_cast< const Phase2TrackerGeomDetUnit* >( det1 );
+          int cols0 = tk0->specificTopology().ncolumns();
+          int cols1 = tk1->specificTopology().ncolumns();
+          int ratio = cols0/cols1; /// This assumes the ratio is integer!
+          
+          if ( ratio == 1 ) /// 2S Modules
+          {
+            TPart_Stub_Eta_Pt10_Num2S->Fill( tempTPPtr->momentum().eta() );
+          }
+          else /// PS
+          {
+            TPart_Stub_Eta_Pt10_NumPS->Fill( tempTPPtr->momentum().eta() );
+          }
         }  /// end of loop over the Stubs generated by this TrackingParticle
       }
       
@@ -396,7 +398,7 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       
       /// Get det ID (place of the stub)
       //  tempStubRef->getDetId() gives the stackDetId, not rawId
-//      DetId detIdStub = theTrackerGeometry->idToDet( (tempStubRef->getClusterRef(0))->getDetId() )->geographicalId();
+      DetId detIdStub = theTrackerGeometry->idToDet( (tempStubRef->getClusterRef(0))->getDetId() )->geographicalId();
       
       bool genuineStub    = MCTruthTTStubHandle->isGenuine( tempStubRef );
       int partStub        = 999999999;
@@ -421,56 +423,66 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         if ( tpPtr.isNull() ) continue; /// This prevents to fill the vector if the TrackingParticle is not found
         TrackingParticle thisTP = *tpPtr;
         
+        double simPt  = thisTP.p4().pt();
+        double simEta = thisTP.momentum().eta();
+        double simPhi = thisTP.momentum().phi();
+        
         /// REMOVE STACKEDTRACKERGEOMETRY DEPENDENCE
-//         double simPt  = thisTP.p4().pt();
-//         double simEta = thisTP.momentum().eta();
-//         double simPhi = thisTP.momentum().phi();
+        const GeomDet* theGeomDet0 = theTrackerGeometry->idToDet( (tempStubRef->getClusterRef(0))->getDetId() );
+        const GeomDet* theGeomDet1 = theTrackerGeometry->idToDet( (tempStubRef->getClusterRef(1))->getDetId() );
+        const Global3DPoint innerHitPosition = theGeomDet0->surface().toGlobal( theGeomDet0->topology().localPosition( (tempStubRef->getClusterRef(0))->findAverageLocalCoordinates() ) );
+        const Global3DPoint outerHitPosition = theGeomDet1->surface().toGlobal( theGeomDet1->topology().localPosition( (tempStubRef->getClusterRef(1))->findAverageLocalCoordinates() ) );
+        const Global3DVector tempStubDirection( outerHitPosition.x()-innerHitPosition.x(), outerHitPosition.y()-innerHitPosition.y(), outerHitPosition.z()-innerHitPosition.z() );
+        
 //        double recPt  = theStackedGeometry->findRoughPt( mMagneticFieldStrength, &(*tempStubRef) );
 //        double recEta = theStackedGeometry->findGlobalDirection( &(*tempStubRef) ).eta();
-//        double recPhi = theStackedGeometry->findGlobalDirection( &(*tempStubRef) ).phi();
-// 
-//         if ( simPhi > M_PI )
-//         {
-//           simPhi -= 2*M_PI;
-//         }
-//         if ( recPhi > M_PI )
-//         {
-//           recPhi -= 2*M_PI;
-//         }
-// 
-//         double displStub    = tempStubRef->getTriggerDisplacement();
-//         double offsetStub   = tempStubRef->getTriggerOffset();
+        double recEta = tempStubDirection.eta();
+        double recPhi = tempStubDirection.phi();
+        
+        if ( simPhi > M_PI )
+        {
+          simPhi -= 2*M_PI;
+        }
+        if ( recPhi > M_PI )
+        {
+          recPhi -= 2*M_PI;
+        }
+        
+        double displStub    = tempStubRef->getTriggerDisplacement();
+        double offsetStub   = tempStubRef->getTriggerOffset();
 
-//         if ( detIdStub.subdetId() == static_cast<int>(StripSubdetector::TOB) )  // Phase 2 Outer Tracker Barrel
-//         {
+        if ( detIdStub.subdetId() == static_cast<int>(StripSubdetector::TOB) )  // Phase 2 Outer Tracker Barrel
+        {
 //           Stub_InvPt_TPart_InvPt_AllLayers->Fill( 1./simPt, 1./recPt );
 //           Stub_Pt_TPart_Pt_AllLayers->Fill( simPt, recPt );
-//           Stub_Eta_TPart_Eta_AllLayers->Fill( simEta, recEta );
-//           Stub_Phi_TPart_Phi_AllLayers->Fill( simPhi, recPhi );
-// 
+          Stub_Eta_TPart_Eta_AllLayers->Fill( simEta, recEta );
+          Stub_Phi_TPart_Phi_AllLayers->Fill( simPhi, recPhi );
+          
 //           Stub_InvPtRes_TPart_Eta_AllLayers->Fill(simEta, 1./recPt - 1./simPt);
 //           Stub_PtRes_TPart_Eta_AllLayers->Fill(simEta, recPt - simPt);
-//           Stub_EtaRes_TPart_Eta_AllLayers->Fill( simEta, recEta - simEta );
-//           Stub_PhiRes_TPart_Eta_AllLayers->Fill( simEta, recPhi - simPhi );
-// 
-//           Stub_W_TPart_Pt_AllLayers->Fill( simPt, displStub - offsetStub );
-//           Stub_W_TPart_InvPt_AllLayers->Fill( 1./simPt, displStub - offsetStub );
-//         }
-//         else if ( detIdStub.subdetId() == static_cast<int>(StripSubdetector::TID) )  // Phase 2 Outer Tracker Endcap
-//         {
+          Stub_EtaRes_TPart_Eta_AllLayers->Fill( simEta, recEta - simEta );
+          Stub_PhiRes_TPart_Eta_AllLayers->Fill( simEta, recPhi - simPhi );
+          Stub_PhiRes_TPart_Phi_AllLayers->Fill( simPhi, recPhi - simPhi );
+          
+          Stub_W_TPart_Pt_AllLayers->Fill( simPt, displStub - offsetStub );
+          Stub_W_TPart_InvPt_AllLayers->Fill( 1./simPt, displStub - offsetStub );
+        }
+        else if ( detIdStub.subdetId() == static_cast<int>(StripSubdetector::TID) )  // Phase 2 Outer Tracker Endcap
+        {
 //           Stub_InvPt_TPart_InvPt_AllDiscs->Fill( 1./simPt, 1./recPt );
 //           Stub_Pt_TPart_Pt_AllDiscs->Fill( simPt, recPt );
-//           Stub_Eta_TPart_Eta_AllDiscs->Fill( simEta, recEta );
-//           Stub_Phi_TPart_Phi_AllDiscs->Fill( simPhi, recPhi );
-// 
+          Stub_Eta_TPart_Eta_AllDiscs->Fill( simEta, recEta );
+          Stub_Phi_TPart_Phi_AllDiscs->Fill( simPhi, recPhi );
+          
 //           Stub_InvPtRes_TPart_Eta_AllDiscs->Fill(simEta, 1./recPt - 1./simPt);
 //           Stub_PtRes_TPart_Eta_AllDiscs->Fill(simEta, recPt - simPt);
-//           Stub_EtaRes_TPart_Eta_AllDiscs->Fill( simEta, recEta - simEta );
-//           Stub_PhiRes_TPart_Eta_AllDiscs->Fill( simEta, recPhi - simPhi );
-// 
-//           Stub_W_TPart_Pt_AllDiscs->Fill( simPt, displStub - offsetStub );
-//           Stub_W_TPart_InvPt_AllDiscs->Fill( 1./simPt, displStub - offsetStub );
-//         }
+          Stub_EtaRes_TPart_Eta_AllDiscs->Fill( simEta, recEta - simEta );
+          Stub_PhiRes_TPart_Eta_AllDiscs->Fill( simEta, recPhi - simPhi );
+          Stub_PhiRes_TPart_Phi_AllDiscs->Fill( simPhi, recPhi - simPhi );
+          
+          Stub_W_TPart_Pt_AllDiscs->Fill( simPt, displStub - offsetStub );
+          Stub_W_TPart_InvPt_AllDiscs->Fill( 1./simPt, displStub - offsetStub );
+        }
       }  /// end verbosePlots
     }
   }  /// end of loop over TTStubs
@@ -1088,7 +1100,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psStub_PhiRes.getParameter<int32_t>("Nbinsy"),
         psStub_PhiRes.getParameter<double>("ymin"),
         psStub_PhiRes.getParameter<double>("ymax"));
-    Stub_PhiRes_TPart_Eta_AllLayers->setAxisTitle("TPart Eta", 1);
+    Stub_PhiRes_TPart_Eta_AllLayers->setAxisTitle("TPart #eta", 1);
     Stub_PhiRes_TPart_Eta_AllLayers->setAxisTitle("L1 Stub #phi - TPart #phi", 2);
 
     HistoName = "Stub_PhiRes_TPart_Eta_AllDiscs";
@@ -1101,6 +1113,28 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
         psStub_PhiRes.getParameter<double>("ymax"));
     Stub_PhiRes_TPart_Eta_AllDiscs->setAxisTitle("TPart #eta", 1);
     Stub_PhiRes_TPart_Eta_AllDiscs->setAxisTitle("L1 Stub #phi - TPart #phi", 2);
+    
+    HistoName = "Stub_PhiRes_TPart_Phi_AllLayers";
+    Stub_PhiRes_TPart_Phi_AllLayers = dqmStore_->book2D(HistoName, HistoName,
+        psStub_PhiRes.getParameter<int32_t>("Nbinsx"),
+        psStub_PhiRes.getParameter<double>("xmin"),
+        psStub_PhiRes.getParameter<double>("xmax"),
+        psStub_PhiRes.getParameter<int32_t>("Nbinsy"),
+        psStub_PhiRes.getParameter<double>("ymin"),
+        psStub_PhiRes.getParameter<double>("ymax"));
+    Stub_PhiRes_TPart_Phi_AllLayers->setAxisTitle("TPart #phi", 1);
+    Stub_PhiRes_TPart_Phi_AllLayers->setAxisTitle("L1 Stub #phi - TPart #phi", 2);
+
+    HistoName = "Stub_PhiRes_TPart_Phi_AllDiscs";
+    Stub_PhiRes_TPart_Phi_AllDiscs = dqmStore_->book2D(HistoName, HistoName,
+        psStub_PhiRes.getParameter<int32_t>("Nbinsx"),
+        psStub_PhiRes.getParameter<double>("xmin"),
+        psStub_PhiRes.getParameter<double>("xmax"),
+        psStub_PhiRes.getParameter<int32_t>("Nbinsy"),
+        psStub_PhiRes.getParameter<double>("ymin"),
+        psStub_PhiRes.getParameter<double>("ymax"));
+    Stub_PhiRes_TPart_Phi_AllDiscs->setAxisTitle("TPart #phi", 1);
+    Stub_PhiRes_TPart_Phi_AllDiscs->setAxisTitle("L1 Stub #phi - TPart #phi", 2);
 
     // Width vs. InvPt
     edm::ParameterSet psStub_W_InvPt =  conf_.getParameter<edm::ParameterSet>("TH2Stub_W_InvPt");
