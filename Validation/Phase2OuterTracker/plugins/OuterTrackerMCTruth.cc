@@ -21,13 +21,13 @@
 #include <memory>
 #include <vector>
 #include <numeric>
+#include <iostream>
 #include <fstream>
 #include <math.h>
+#include "TMath.h"
 #include "TNamed.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-//#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "Validation/Phase2OuterTracker/interface/OuterTrackerMCTruth.h"
 
 // For TrackingParticles
@@ -36,19 +36,9 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-//#include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-//#include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-
-#include "TMath.h"
-#include <iostream>
 
 //
 // constructors and destructor
@@ -109,23 +99,17 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.getByToken( tagTTStubMCTruthToken_, MCTruthTTStubHandle );
   //iEvent.getByToken( tagTTTrackMCTruthToken_, MCTruthTTTrackHandle );
   
-  /// Geometry
-//   edm::ESHandle<TrackerTopology> tTopoHandle;
-//   const TrackerTopology* tTopo;
-//   iSetup.get< TrackerTopologyRcd >().get(tTopoHandle);
-//   tTopo = tTopoHandle.product();
   
   edm::ESHandle< TrackerGeometry > tGeometryHandle;
   const TrackerGeometry* theTrackerGeometry;
   iSetup.get< TrackerDigiGeometryRecord >().get( tGeometryHandle );
   theTrackerGeometry = tGeometryHandle.product();
   
-  // CHECK IF THIS STILL WORKS !!
   /// Magnetic Field
-//   edm::ESHandle< MagneticField > magneticFieldHandle;
-//   iSetup.get< IdealMagneticFieldRecord >().get(magneticFieldHandle);
-//   const MagneticField* theMagneticField = magneticFieldHandle.product();
-//   double mMagneticFieldStrength = theMagneticField->inTesla(GlobalPoint(0,0,0)).z();
+  edm::ESHandle< MagneticField > magneticFieldHandle;
+  iSetup.get< IdealMagneticFieldRecord >().get(magneticFieldHandle);
+  const MagneticField* theMagneticField = magneticFieldHandle.product();
+  double mMagneticFieldStrength = theMagneticField->inTesla(GlobalPoint(0,0,0)).z();
   
   
   /// Go on only if there are TrackingParticles
@@ -427,17 +411,9 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         double simEta = thisTP.momentum().eta();
         double simPhi = thisTP.momentum().phi();
         
-        /// REMOVE STACKEDTRACKERGEOMETRY DEPENDENCE
-        const GeomDet* theGeomDet0 = theTrackerGeometry->idToDet( (tempStubRef->getClusterRef(0))->getDetId() );
-        const GeomDet* theGeomDet1 = theTrackerGeometry->idToDet( (tempStubRef->getClusterRef(1))->getDetId() );
-        const Global3DPoint innerHitPosition = theGeomDet0->surface().toGlobal( theGeomDet0->topology().localPosition( (tempStubRef->getClusterRef(0))->findAverageLocalCoordinates() ) );
-        const Global3DPoint outerHitPosition = theGeomDet1->surface().toGlobal( theGeomDet1->topology().localPosition( (tempStubRef->getClusterRef(1))->findAverageLocalCoordinates() ) );
-        const Global3DVector tempStubDirection( outerHitPosition.x()-innerHitPosition.x(), outerHitPosition.y()-innerHitPosition.y(), outerHitPosition.z()-innerHitPosition.z() );
-        
-//        double recPt  = theStackedGeometry->findRoughPt( mMagneticFieldStrength, &(*tempStubRef) );
-//        double recEta = theStackedGeometry->findGlobalDirection( &(*tempStubRef) ).eta();
-        double recEta = tempStubDirection.eta();
-        double recPhi = tempStubDirection.phi();
+        double recPt  =  this->getRoughStubPt(&(*tempStubRef), theTrackerGeometry, mMagneticFieldStrength);
+        double recEta = (this->findStubGlobalDirection(&(*tempStubRef), theTrackerGeometry)).eta();
+        double recPhi = (this->findStubGlobalDirection(&(*tempStubRef), theTrackerGeometry)).phi();
         
         if ( simPhi > M_PI )
         {
@@ -453,13 +429,13 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
         if ( detIdStub.subdetId() == static_cast<int>(StripSubdetector::TOB) )  // Phase 2 Outer Tracker Barrel
         {
-//           Stub_InvPt_TPart_InvPt_AllLayers->Fill( 1./simPt, 1./recPt );
-//           Stub_Pt_TPart_Pt_AllLayers->Fill( simPt, recPt );
+          Stub_InvPt_TPart_InvPt_AllLayers->Fill( 1./simPt, 1./recPt );
+          Stub_Pt_TPart_Pt_AllLayers->Fill( simPt, recPt );
           Stub_Eta_TPart_Eta_AllLayers->Fill( simEta, recEta );
           Stub_Phi_TPart_Phi_AllLayers->Fill( simPhi, recPhi );
           
-//           Stub_InvPtRes_TPart_Eta_AllLayers->Fill(simEta, 1./recPt - 1./simPt);
-//           Stub_PtRes_TPart_Eta_AllLayers->Fill(simEta, recPt - simPt);
+          Stub_InvPtRes_TPart_Eta_AllLayers->Fill(simEta, 1./recPt - 1./simPt);
+          Stub_PtRes_TPart_Eta_AllLayers->Fill(simEta, recPt - simPt);
           Stub_EtaRes_TPart_Eta_AllLayers->Fill( simEta, recEta - simEta );
           Stub_PhiRes_TPart_Eta_AllLayers->Fill( simEta, recPhi - simPhi );
           Stub_PhiRes_TPart_Phi_AllLayers->Fill( simPhi, recPhi - simPhi );
@@ -469,13 +445,13 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         }
         else if ( detIdStub.subdetId() == static_cast<int>(StripSubdetector::TID) )  // Phase 2 Outer Tracker Endcap
         {
-//           Stub_InvPt_TPart_InvPt_AllDiscs->Fill( 1./simPt, 1./recPt );
-//           Stub_Pt_TPart_Pt_AllDiscs->Fill( simPt, recPt );
+          Stub_InvPt_TPart_InvPt_AllDiscs->Fill( 1./simPt, 1./recPt );
+          Stub_Pt_TPart_Pt_AllDiscs->Fill( simPt, recPt );
           Stub_Eta_TPart_Eta_AllDiscs->Fill( simEta, recEta );
           Stub_Phi_TPart_Phi_AllDiscs->Fill( simPhi, recPhi );
           
-//           Stub_InvPtRes_TPart_Eta_AllDiscs->Fill(simEta, 1./recPt - 1./simPt);
-//           Stub_PtRes_TPart_Eta_AllDiscs->Fill(simEta, recPt - simPt);
+          Stub_InvPtRes_TPart_Eta_AllDiscs->Fill(simEta, 1./recPt - 1./simPt);
+          Stub_PtRes_TPart_Eta_AllDiscs->Fill(simEta, recPt - simPt);
           Stub_EtaRes_TPart_Eta_AllDiscs->Fill( simEta, recEta - simEta );
           Stub_PhiRes_TPart_Eta_AllDiscs->Fill( simEta, recPhi - simPhi );
           Stub_PhiRes_TPart_Phi_AllDiscs->Fill( simPhi, recPhi - simPhi );
@@ -570,7 +546,6 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   */
   
 }
-
 
 // ------------ method called once each job just before starting event loop  ------------
 void

@@ -18,7 +18,7 @@ OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
 # TPart Pt
     TH1TPart_Pt = cms.PSet(
         Nbinsx = cms.int32(50),
-        xmax = cms.double(200.0),                      
+        xmax = cms.double(200.0),
         xmin = cms.double(0.0)
         ),
 
@@ -32,27 +32,27 @@ OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
 # Sim Vertex XY
     TH2SimVtx_XY = cms.PSet(
         Nbinsx = cms.int32(24),
-        xmax = cms.double(0.006),                      
+        xmax = cms.double(0.006),
         xmin = cms.double(-0.006),
         Nbinsy = cms.int32(24),
-        ymax = cms.double(0.006),                      
+        ymax = cms.double(0.006),
         ymin = cms.double(-0.006)
         ),
 
 # Sim Vertex RZ
     TH2SimVtx_RZ = cms.PSet(
         Nbinsx = cms.int32(30),
-        xmax = cms.double(20.0),                      
+        xmax = cms.double(20.0),
         xmin = cms.double(-20.0),
         Nbinsy = cms.int32(30),
-        ymax = cms.double(0.006),                      
+        ymax = cms.double(0.006),
         ymin = cms.double(0.0)
         ),
 
 # CW vs. TPart Eta
     TH1TPart_Eta_CW = cms.PSet(
         Nbinsx = cms.int32(45),
-        xmax = cms.double(3.0),                      
+        xmax = cms.double(3.0),
         xmin = cms.double(-3.0)
         ),
 
@@ -66,18 +66,18 @@ OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
 # Cluster PID vs. Stack member
     TH2Cluster_PID = cms.PSet(
         Nbinsx = cms.int32(501),
-        xmax = cms.double(250.5),                      
+        xmax = cms.double(250.5),
         xmin = cms.double(-250.5),
         Nbinsy = cms.int32(2),
-        ymax = cms.double(1.5),                      
+        ymax = cms.double(1.5),
         ymin = cms.double(-0.5)
         ),
 
 # Stub PID
     TH1Stub_PID = cms.PSet(
         Nbinsx = cms.int32(501),
-        xmax = cms.double(250.5),                      
-        xmin = cms.double(-250.5),
+        xmax = cms.double(250.5),
+        xmin = cms.double(-250.5)
         ),   
 
 # Track Chi2 vs TPart Eta
@@ -104,20 +104,20 @@ OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
 # Stub InvPt vs. TPart InvpT    
     TH2Stub_InvPt = cms.PSet(
         Nbinsx = cms.int32(200),
-        xmax = cms.double(0.0),                      
-        xmin = cms.double(1.0),
+        xmax = cms.double(1.0),
+        xmin = cms.double(0.0),
         Nbinsy = cms.int32(200),
-        ymax = cms.double(0.0),                      
-        ymin = cms.double(1.0)
+        ymax = cms.double(1.0),
+        ymin = cms.double(0.0)
         ),
 
 # Stub Pt vs. TPart pT    
     TH2Stub_Pt = cms.PSet(
         Nbinsx = cms.int32(100),
-        xmax = cms.double(50.0),                      
+        xmax = cms.double(50.0),
         xmin = cms.double(0.0),
         Nbinsy = cms.int32(100),
-        ymax = cms.double(50.0),                      
+        ymax = cms.double(50.0),
         ymin = cms.double(0.0)
         ),
 
@@ -147,7 +147,7 @@ OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
         xmax = cms.double(math.pi),                      
         xmin = cms.double(-math.pi),
         Nbinsy = cms.int32(100),
-        ymax = cms.double(2.0),                      
+        ymax = cms.double(2.0),
         ymin = cms.double(-2.0)
         ),
     
@@ -157,7 +157,7 @@ OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
         xmax = cms.double(math.pi),
         xmin = cms.double(-math.pi),
         Nbinsy = cms.int32(100),
-        ymax = cms.double(40.0),                      
+        ymax = cms.double(40.0),
         ymin = cms.double(-40.0)
         ),
 
@@ -167,7 +167,7 @@ OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
         xmax = cms.double(math.pi),
         xmin = cms.double(-math.pi),
         Nbinsy = cms.int32(100),
-        ymax = cms.double(2.0),                      
+        ymax = cms.double(2.0),
         ymin = cms.double(-2.0)
         ),
 
@@ -177,7 +177,7 @@ OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
         xmax = cms.double(math.pi),
         xmin = cms.double(-math.pi),
         Nbinsy = cms.int32(100),
-        ymax = cms.double(0.5),                      
+        ymax = cms.double(0.5),
         ymin = cms.double(-0.5)
         ),
 
@@ -197,7 +197,7 @@ OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
         xmax = cms.double(200.0),
         xmin = cms.double(0.0),
         Nbinsy = cms.int32(29),
-        ymax = cms.double(7.25),                      
+        ymax = cms.double(7.25),
         ymin = cms.double(-7.25)
         ),
 
