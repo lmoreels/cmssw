@@ -108,7 +108,6 @@ OuterTrackerStub::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       //  tempStubRef->getDetId() gives the stackDetId, not rawId
       DetId detIdStub = theTrackerGeometry->idToDet( (tempStubRef->getClusterRef(0))->getDetId() )->geographicalId();
       
-      // CHECK IF THIS STILL WORKS !!
       bool genuineStub    = MCTruthTTStubHandle->isGenuine( tempStubRef );
       bool combinStub     = MCTruthTTStubHandle->isCombinatoric( tempStubRef );
       
