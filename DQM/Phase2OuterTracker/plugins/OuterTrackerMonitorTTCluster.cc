@@ -150,7 +150,7 @@ OuterTrackerMonitorTTCluster::beginRun(const edm::Run& run, const edm::EventSetu
 {
   std::string HistoName;
   
-  dqmStore_->setCurrentFolder(topFolderName_+"/Clusters/NClusters");
+  dqmStore_->setCurrentFolder(topFolderName_+"/TTClusters/NClusters");
   
   // NClusters
   edm::ParameterSet psTTCluster_Barrel =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Barrel");
@@ -249,7 +249,7 @@ OuterTrackerMonitorTTCluster::beginRun(const edm::Run& run, const edm::EventSetu
   }
   
   
-  dqmStore_->setCurrentFolder(topFolderName_+"/Clusters");
+  dqmStore_->setCurrentFolder(topFolderName_+"/TTClusters");
         
   //Cluster Width
   edm::ParameterSet psTTClusterWidth =  conf_.getParameter<edm::ParameterSet>("TH2TTCluster_Width");
@@ -274,7 +274,7 @@ OuterTrackerMonitorTTCluster::beginRun(const edm::Run& run, const edm::EventSetu
   Cluster_Eta->setAxisTitle("#eta", 1);
   Cluster_Eta->setAxisTitle("# L1 Clusters", 2);
   
-  dqmStore_->setCurrentFolder(topFolderName_+"/Clusters/Position");
+  dqmStore_->setCurrentFolder(topFolderName_+"/TTClusters/Position");
   
   //Position plots
   edm::ParameterSet psTTCluster_Barrel_XY =  conf_.getParameter<edm::ParameterSet>("TH2TTCluster_Position");
