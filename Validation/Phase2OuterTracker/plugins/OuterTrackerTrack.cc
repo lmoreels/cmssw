@@ -75,6 +75,8 @@ OuterTrackerTrack::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   edm::Handle< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > >   MCTruthTTTrackHandle;
   iEvent.getByToken( tagTTTrackMCTruthToken_, MCTruthTTTrackHandle );
 	
+  if ( ! Phase2TrackerDigiTTTrackHandle.isValid() || ! MCTruthTTTrackHandle.isValid() )  return;
+  
 	
   unsigned int numHQTracks = 0;
   unsigned int numLQTracks = 0;

@@ -99,6 +99,9 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.getByToken( tagTTStubMCTruthToken_, MCTruthTTStubHandle );
   //iEvent.getByToken( tagTTTrackMCTruthToken_, MCTruthTTTrackHandle );
   
+  if ( ! Phase2TrackerDigiTTClusterHandle.isValid() || ! MCTruthTTClusterHandle.isValid() )  return;
+  if ( ! Phase2TrackerDigiTTStubHandle.isValid() || ! MCTruthTTStubHandle.isValid() )  return;
+  //if ( ! Phase2TrackerDigiTTTrackHandle.isValid() || ! MCTruthTTTrackHandle.isValid() )  return;
   
   edm::ESHandle< TrackerGeometry > tGeometryHandle;
   const TrackerGeometry* theTrackerGeometry;
