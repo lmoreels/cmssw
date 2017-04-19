@@ -62,6 +62,9 @@ void OuterTrackerMonitorTTTrack::analyze(const edm::Event& iEvent, const edm::Ev
   edm::Handle< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > Phase2TrackerDigiTTTrackHandle;
   iEvent.getByToken( tagTTTracksToken_, Phase2TrackerDigiTTTrackHandle );
   
+  if ( ! Phase2TrackerDigiTTTrackHandle.isValid() )  return;
+  
+  
   unsigned int numHQTracks = 0;
   unsigned int numLQTracks = 0;
   unsigned int numTracks = 0; 

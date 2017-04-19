@@ -76,6 +76,8 @@ OuterTrackerStub::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   edm::Handle< TTStubAssociationMap< Ref_Phase2TrackerDigi_ > > MCTruthTTStubHandle;
   iEvent.getByToken( tagTTStubMCTruthToken_, MCTruthTTStubHandle );
   
+  if ( ! Phase2TrackerDigiTTStubHandle.isValid() || ! MCTruthTTStubHandle.isValid() )  return;
+  
   /// Geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
   const TrackerTopology* tTopo;

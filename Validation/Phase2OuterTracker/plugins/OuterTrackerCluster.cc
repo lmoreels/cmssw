@@ -75,6 +75,8 @@ OuterTrackerCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   edm::Handle< TTClusterAssociationMap< Ref_Phase2TrackerDigi_ > > MCTruthTTClusterHandle;
   iEvent.getByToken( tagTTClusterMCTruthToken_, MCTruthTTClusterHandle );
   
+  if ( ! Phase2TrackerDigiTTClusterHandle.isValid() || ! MCTruthTTClusterHandle.isValid() )  return;
+  
   /// Geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
   const TrackerTopology* tTopo;
