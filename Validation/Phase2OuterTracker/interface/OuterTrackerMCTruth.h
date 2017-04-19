@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <memory>
-//#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -21,6 +21,11 @@
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
 //#include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"  // does not exist yet in 90X
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 
 class PixelGeomDetUnit;
@@ -38,6 +43,11 @@ public:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+
+  template< typename T > LocalPoint findClusterLocalPosition(const TTCluster<T> *cluster, const TrackerGeometry *tkGeom);
+  template< typename T > GlobalPoint findStubGlobalPosition(const TTStub<T> *stub, const TrackerGeometry *tkGeom, unsigned int stackMember);
+  template< typename T > GlobalVector findStubGlobalDirection(const TTStub<T> *stub, const TrackerGeometry *tkGeom);
+  template< typename T > double getRoughStubPt(const TTStub<T> *stub, const TrackerGeometry *tkGeom, double magnFieldStrength);
  
   
   // TrackingParticle and TrackingVertex
@@ -159,4 +169,73 @@ public:
   bool verbosePlots_;
   
 };
+
+template< typename T >
+LocalPoint OuterTrackerMCTruth::findClusterLocalPosition(const TTCluster<T> *cluster, const TrackerGeometry *tkGeom)
+{
+  const GeomDet* theGeomDet = tkGeom->idToDet( cluster->getDetId() );
+  return theGeomDet->topology().localPosition( cluster->findAverageLocalCoordinates() );
+}
+
+template< typename T >
+GlobalPoint OuterTrackerMCTruth::findStubGlobalPosition(const TTStub<T> *stub, const TrackerGeometry *tkGeom, unsigned int stackMember)
+{
+  const GeomDet* theGeomDet = tkGeom->idToDet( (stub->getClusterRef(stackMember))->getDetId() );
+  const GlobalPoint thePosition = theGeomDet->surface().toGlobal( theGeomDet->topology().localPosition( (stub->getClusterRef(stackMember))->findAverageLocalCoordinates() ) );
+
+  return thePosition;
+}
+
+template< typename T >
+GlobalVector OuterTrackerMCTruth::findStubGlobalDirection(const TTStub<T> *stub, const TrackerGeometry *tkGeom)
+{
+  const GlobalPoint innerHitPosition = findStubGlobalPosition(stub, tkGeom, 0);
+  const GlobalPoint outerHitPosition = findStubGlobalPosition(stub, tkGeom, 1);
+  const GlobalVector tempStubDirection( outerHitPosition.x()-innerHitPosition.x(), outerHitPosition.y()-innerHitPosition.y(), outerHitPosition.z()-innerHitPosition.z() );
+
+  return tempStubDirection;
+}
+
+template< typename T > double OuterTrackerMCTruth::getRoughStubPt(const TTStub<T> *stub, const TrackerGeometry *tkGeom, double magnFieldStrength )
+{
+  /// Get the magnetic field
+  double mPtFactor = (floor(magnFieldStrength*10.0 + 0.5))/10.0*0.0015;;  // CHECK !!
+
+  /// Get average position of Clusters composing the Stub
+  const GlobalPoint innerHitPosition = findStubGlobalPosition(stub, tkGeom, 0);
+  const GlobalPoint outerHitPosition = findStubGlobalPosition(stub, tkGeom, 1);
+
+  /// Get useful quantities
+  double outerPointRadius = outerHitPosition.perp();
+  double innerPointRadius = innerHitPosition.perp();
+  double deltaRadius = outerPointRadius - innerPointRadius;
+
+  DetId tempDetId = tkGeom->idToDet( (stub->getClusterRef(0))->getDetId() )->geographicalId();
+  if ( tempDetId.subdetId() == static_cast<int>(StripSubdetector::TOB) )  // Phase 2 Outer Tracker Barrel
+  {
+    /// Calculate angular displacement from hit phi locations
+    /// and renormalize it, if needed
+    double deltaPhi = outerHitPosition.phi() - innerHitPosition.phi();
+    if (deltaPhi < 0)
+      deltaPhi = -deltaPhi;
+    else if (deltaPhi > M_PI)
+      deltaPhi = 2*M_PI - deltaPhi;
+
+    /// Return the rough Pt
+    return ( deltaRadius * mPtFactor / deltaPhi );
+  }
+  else if ( tempDetId.subdetId() == static_cast<int>(StripSubdetector::TID) )  // Phase 2 Outer Tracker Endcap
+  {
+    /// Test approximated formula for Endcap stubs
+    /// Check always to be consistent with HitMatchingAlgorithm_window2012.h
+    double roughPt = innerPointRadius * innerPointRadius * mPtFactor / fabs( findClusterLocalPosition(&(*stub->getClusterRef(0)), tkGeom).x() );
+    roughPt +=       outerPointRadius * outerPointRadius * mPtFactor / fabs( findClusterLocalPosition(&(*stub->getClusterRef(1)), tkGeom).x() );
+    roughPt = roughPt / 2.;
+
+    return roughPt;
+  }
+
+  /// Should never come here (! barrel && ! endcap)
+  return -9999.;
+}
 #endif
