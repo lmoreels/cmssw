@@ -103,6 +103,7 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if ( ! Phase2TrackerDigiTTStubHandle.isValid() || ! MCTruthTTStubHandle.isValid() )  return;
   //if ( ! Phase2TrackerDigiTTTrackHandle.isValid() || ! MCTruthTTTrackHandle.isValid() )  return;
   
+  /// Geometry
   edm::ESHandle< TrackerGeometry > tGeometryHandle;
   const TrackerGeometry* theTrackerGeometry;
   iSetup.get< TrackerDigiGeometryRecord >().get( tGeometryHandle );

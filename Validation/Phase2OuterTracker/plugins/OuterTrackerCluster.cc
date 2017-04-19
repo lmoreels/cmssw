@@ -105,7 +105,6 @@ OuterTrackerCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       
       DetId detIdClu = theTrackerGeometry->idToDet( tempCluRef->getDetId() )->geographicalId();
       
-      // CHECK IF THIS STILL WORKS !!
       bool genuineClu     = MCTruthTTClusterHandle->isGenuine( tempCluRef );
       bool combinClu      = MCTruthTTClusterHandle->isCombinatoric( tempCluRef );
       
