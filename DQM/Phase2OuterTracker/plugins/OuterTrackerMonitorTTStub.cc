@@ -387,7 +387,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
       psTTStub_ECRing_2D.getParameter<double>("ymin"),
       psTTStub_ECRing_2D.getParameter<double>("ymax"));
   Stub_Endcap_Ring_W->setAxisTitle("Endcap Ring",1); 
-  Stub_Endcap_Ring_W->setAxisTitle("Trigger Offset",2);
+  Stub_Endcap_Ring_W->setAxisTitle("Displacement - Offset",2);
   
   for (int i = 0; i < 5; i++)
   {
