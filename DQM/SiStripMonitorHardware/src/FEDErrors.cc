@@ -744,7 +744,7 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
 
 void FEDErrors::fillBadChannelList(const bool doTkHistoMap,
 				   TkHistoMap *aTkMapPointer,
-				   MonitorElement *aFedIdVsApvId,
+           MonitorElement *anApvIdVsFedId,
 				   unsigned int & aNBadChannels,
 				   unsigned int & aNBadActiveChannels)
 {
@@ -832,8 +832,8 @@ void FEDErrors::fillBadChannelList(const bool doTkHistoMap,
       aNBadChannels++;
       //define as active channel if channel locked AND not from an unlocked FE.
       if ((isBadChan && isActiveChan) || lFailFED || (isBadFE && !isMissingFE)) aNBadActiveChannels++;
-      if ( isBadApv1 || lFailFED || isBadFE ) HistogramBase::fillHistogram ( aFedIdVsApvId , 2 * iCh , fedID_ ) ; 
-      if ( isBadApv2 || lFailFED || isBadFE ) HistogramBase::fillHistogram ( aFedIdVsApvId , 2 * iCh + 1 , fedID_ ) ; 
+      if ( isBadApv1 || lFailFED || isBadFE ) HistogramBase::fillHistogram ( anApvIdVsFedId , fedID_ , 2 * iCh ) ; 
+      if ( isBadApv2 || lFailFED || isBadFE ) HistogramBase::fillHistogram ( anApvIdVsFedId , fedID_ , 2 * iCh + 1 ) ; 
     }
 
 

@@ -92,7 +92,7 @@ public:
 
   MonitorElement *cmHistPointer(bool aApv1);
 
-  MonitorElement *getFedvsAPVpointer();
+  MonitorElement *getAPVvsFEDpointer();
 
 protected:
   
@@ -154,7 +154,7 @@ private:
     badMajorityInPartition_,
     feMissing_, 
     anyFEProblems_,
-    fedIdVsApvId_;
+    apvIdVsFedId_;
 
   HistogramConfig feTimeDiffTIB_,
     feTimeDiffTOB_,

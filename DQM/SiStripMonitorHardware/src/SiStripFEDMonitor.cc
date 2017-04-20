@@ -309,7 +309,7 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 
     fedErrors_.fillBadChannelList(doTkHistoMap_,
 				  fedHists_.tkHistoMapPointer(),
-				  fedHists_.getFedvsAPVpointer(),
+				  fedHists_.getAPVvsFEDpointer(),
 				  lNTotBadChannels,
 				  lNTotBadActiveChannels);
   }//loop over FED IDs
