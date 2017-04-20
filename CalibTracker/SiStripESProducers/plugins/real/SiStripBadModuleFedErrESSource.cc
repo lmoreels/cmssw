@@ -8,7 +8,7 @@
  Description: SiStripBadStrip ESProducer from FED errors
 
   A new SiStrip fake source has been added to create Bad Components from the list of Fed detected errors. This
-  is done using a histogram from DQM output where FedId vs APVId is plotted for detected channels.
+  is done using a histogram from DQM output where ApvId vs FedId is plotted for detected channels.
 
  Implementation:
 
@@ -104,11 +104,11 @@ std::vector<std::pair<uint16_t,uint16_t>> SiStripBadModuleFedErrESSource::getFed
     TH2F* th2 = me->getTH2F();
     float entries = getProcessedEvents(dqmStore);
     if ( ! entries ) entries = th2->GetBinContent(th2->GetMaximumBin());
-    for ( uint16_t i = 1; i < th2->GetNbinsY()+1; ++i ) {
-      for ( uint16_t j = 1; j < th2->GetNbinsX()+1; ++j ) {
+    for ( uint16_t j = 1; j < th2->GetNbinsX()+1; ++j ) {
+      for ( uint16_t i = 1; i < th2->GetNbinsY()+1; ++i ) {
         if ( th2->GetBinContent(j,i) > m_cutoff * entries ) {
-          edm::LogInfo("SiStripBadModuleFedErrService") << " [SiStripBadModuleFedErrService::getFedBadChannelList] :: FedId & Channel " << th2->GetYaxis()->GetBinLowEdge(i) <<   "  " << th2->GetXaxis()->GetBinLowEdge(j);
-          ret.push_back(std::pair<uint16_t, uint16_t>(th2->GetYaxis()->GetBinLowEdge(i), th2->GetXaxis()->GetBinLowEdge(j)));
+          edm::LogInfo("SiStripBadModuleFedErrService") << " [SiStripBadModuleFedErrService::getFedBadChannelList] :: FedId & Channel " << th2->GetXaxis()->GetBinLowEdge(j) <<   "  " << th2->GetYaxis()->GetBinLowEdge(i);
+          ret.push_back(std::pair<uint16_t, uint16_t>(th2->GetXaxis()->GetBinLowEdge(j), th2->GetYaxis()->GetBinLowEdge(i)));
         }
       }
     }
@@ -139,7 +139,7 @@ SiStripBadModuleFedErrESSource::produce(const SiStripBadModuleFedErrRcd& iRecord
   dqmStore->cd();
 
   const std::string dname{"SiStrip/ReadoutView"};
-  const std::string hpath{dname + "/FedIdVsApvId"};
+  const std::string hpath{dname + "/ApvIdVsFedId"};
   if ( dqmStore->dirExists(dname) ) {
     MonitorElement* me = dqmStore->get(hpath);
     if ( me ) {
